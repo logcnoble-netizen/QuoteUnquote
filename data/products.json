@@ -1,0 +1,19 @@
+[
+  {
+    "id": "custom-comment",
+    "title": "Build Your Own Comment Tee",
+    "color": "Black",
+    "blank": "Shaka Wear Max Heavyweight 7.5oz",
+    "price": 4200,
+    "currency": "usd",
+    "fulfillment_type": "POD",
+    "custom": true,
+    "image": "black",
+    "description": "Your handle, your comment, your avatar. Printed on demand at 300 DPI on a boxy 7.5oz Shaka Wear Max Heavyweight blank.",
+    "blueprintId": 0,
+    "printProviderId": 0,
+    "variants": {
+      "S": 0, "M": 0, "L": 0, "XL": 0, "2XL": 0, "3XL": 0
+    }
+  }
+]

@@ -1,0 +1,32 @@
+{
+  "name": "quoteunquote-commerce",
+  "version": "1.0.0",
+  "private": true,
+  "description": "QuoteUnquote — 100% custom POD streetwear for Instagram-comment tees. Express API + vanilla frontend, avatar upload/crop, server-side 300 DPI print rendering, Stripe wallet checkout, Printify draft fulfillment.",
+  "main": "server.js",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18.18.0 <21"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "build:css": "tailwindcss -i ./tailwind.input.css -o ./public/tailwind.css --minify",
+    "watch:css": "tailwindcss -i ./tailwind.input.css -o ./public/tailwind.css --watch",
+    "check": "node --check server.js && node --check src/db.js && node --check src/sanitize.js && node --check src/printEngine.js && node --check src/printify.js && node --check src/capi.js && node --check src/notify.js && node --check src/config.js",
+    "postinstall": "node -e \"console.log('\\n[QuoteUnquote] Dependencies installed. Next: copy .env.example -> .env and fill in your secrets.\\n')\""
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "canvas": "^2.11.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
+    "stripe": "^16.12.0"
+  },
+  "devDependencies": {
+    "cropperjs": "^1.6.2",
+    "tailwindcss": "^3.4.17"
+  }
+}

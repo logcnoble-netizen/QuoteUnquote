@@ -1,0 +1,28 @@
+# Nixpacks build config for Railway.
+#
+# node-canvas loads native Cairo/Pango/JPEG/GIF/SVG shared libraries at
+# RUNTIME even when npm installs a prebuilt binary. Railway's default image
+# does not ship them, so we install the runtime libs here. Without this you
+# get: "Error: libcairo.so.2: cannot open shared object file".
+#
+# `python3` + `pkg-config` are only needed if npm has to compile canvas from
+# source (no prebuilt for the resolved Node version); harmless to keep.
+
+[phases.setup]
+aptPkgs = [
+  "libcairo2-dev",
+  "libpango1.0-dev",
+  "libjpeg-dev",
+  "libgif-dev",
+  "librsvg2-dev",
+  "libpng-dev",
+  "pkg-config",
+  "python3",
+  "build-essential"
+]
+
+[phases.install]
+cmds = ["npm ci --omit=dev || npm install --omit=dev"]
+
+[start]
+cmd = "node server.js"

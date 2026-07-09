@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0a0a0b" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Admin — QuoteUnquote</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/tailwind.css" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/">Quote<span>Unquote</span></a>
+      <nav class="nav-links"><a href="/">Store</a><a href="/track">Track</a></nav>
+      <span class="chip solid">ADMIN</span>
+    </div>
+  </header>
+
+  <main class="wrap" style="padding:36px 22px 90px">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">// Verification Queue</div>
+        <h2>Pending Approval</h2>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <input class="input" id="tokenInput" type="password" placeholder="ADMIN_TOKEN" autocomplete="off" style="width:220px" />
+        <button class="btn" id="loadBtn">Load</button>
+        <button class="btn btn-ghost" id="refreshBtn">Refresh</button>
+      </div>
+    </div>
+
+    <p class="pay-note" id="status" style="margin-bottom:20px">Enter your ADMIN_TOKEN and press Load. Review each print + avatar against the text, then submit to production from the Printify dashboard.</p>
+
+    <div id="queue"></div>
+  </main>
+
+  <script src="/admin.js"></script>
+</body>
+</html>

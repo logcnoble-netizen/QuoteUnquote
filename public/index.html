@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0a0b" />
+  <meta name="description" content="QuoteUnquote — turn any Instagram comment into a custom 7.5oz Shaka Wear tee. Upload your avatar, write your comment, printed on demand." />
+  <title>QuoteUnquote — Custom Comment Tees</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+  <!-- Compiled Tailwind base + vendored cropper.js (both self-hosted, CSP-safe) -->
+  <link rel="stylesheet" href="/tailwind.css" />
+  <link rel="stylesheet" href="/vendor/cropper.min.css" />
+
+  <script src="https://js.stripe.com/v3/"></script>
+
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32'/%3E%3Ctext x='16' y='25' font-family='monospace' font-size='24' fill='white' text-anchor='middle'%3E%E2%80%9D%3C/text%3E%3C/svg%3E" />
+</head>
+<body>
+  <!-- ===================== Header ===================== -->
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/">Quote<span>Unquote</span></a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#builder">Customize</a>
+        <a href="/track">Track</a>
+      </nav>
+      <button class="cart-btn" id="cartOpen" aria-label="Open cart">
+        Cart <span class="cart-count" id="cartCount">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ===================== Hero (brand-forward, no motto) ===================== -->
+  <section class="hero">
+    <div class="wrap">
+      <h1>Quote<br />Unquote</h1>
+      <p>One product, infinitely yours. Turn any comment into a custom, print-on-demand tee on a premium 7.5oz Shaka Wear Max Heavyweight blank — your handle, your words, your avatar.</p>
+      <div class="tickers">
+        <span class="chip solid">7.5oz Heavyweight</span>
+        <span class="chip">300 DPI Print</span>
+        <span class="chip">Made On Demand</span>
+        <span class="chip">Ships From The US</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== Build Your Own (the entire store) ===================== -->
+  <section class="section" id="builder">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">// The Only Product</div>
+          <h2>Build Your Own Comment Tee</h2>
+        </div>
+        <div class="mono" style="font-size:13px;color:var(--text-faint)">Live preview &rarr;</div>
+      </div>
+
+      <div class="builder">
+        <!-- Live mockup stage -->
+        <div class="stage tee-dark">
+          <div class="tee-wrap">
+            <svg class="tee-svg" viewBox="0 0 460 500" role="img" aria-label="Boxy heavyweight t-shirt with your custom comment">
+              <path class="tee-body" d="M198,74 L150,84 L74,116 L66,168 L120,150 L120,424 Q120,434 130,434 L330,434 Q340,434 340,424 L340,150 L394,168 L386,116 L310,84 L262,74 Q230,104 198,74 Z" />
+              <path class="tee-seam" d="M198,80 Q230,108 262,80" />
+              <path class="tee-seam" d="M203,88 Q230,115 257,88" />
+              <path class="tee-seam" d="M129,150 L129,424" />
+              <path class="tee-seam" d="M331,150 L331,424" />
+              <path class="tee-seam" d="M80,124 L94,160" />
+              <path class="tee-seam" d="M380,124 L366,160" />
+            </svg>
+
+            <!-- Instagram comment overlay -->
+            <div class="ig-comment">
+              <div class="ig-avatar" id="mockAvatar">U</div>
+              <div class="ig-body">
+                <div class="ig-line">
+                  <span class="ig-handle" id="mockHandle">yourhandle</span><span class="ig-text" id="mockText">your comment goes here</span>
+                </div>
+                <div class="ig-meta">
+                  <span>2h</span><span>Reply</span><span>See translation</span>
+                </div>
+              </div>
+              <div class="ig-heart" aria-label="liked">&#9829;</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form panel -->
+        <div class="panel">
+          <!-- Avatar upload + circular crop -->
+          <div class="field">
+            <div class="label">
+              <label>Profile Photo</label>
+              <span class="counter">Cropped to a circle</span>
+            </div>
+            <div class="avatar-field">
+              <div class="avatar-preview" id="avatarPreview" aria-hidden="true"><span id="avatarPreviewLetter">+</span></div>
+              <div class="avatar-actions">
+                <input type="file" id="avatarInput" accept="image/png,image/jpeg,image/webp" class="visually-hidden" />
+                <button type="button" class="btn btn-ghost" id="avatarUploadBtn" style="padding:11px 16px">Upload &amp; Crop</button>
+                <button type="button" class="link-btn" id="avatarClearBtn" hidden style="margin-left:12px">Remove</button>
+                <p class="pay-note" id="avatarHint" style="margin-top:8px">Upload a photo — then scale &amp; crop it into a circle.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="label">
+              <label for="handleInput">Handle</label>
+              <span class="counter" id="handleCount">0/30</span>
+            </div>
+            <input class="input" id="handleInput" type="text" inputmode="text" maxlength="30" placeholder="@yourhandle" autocomplete="off" />
+          </div>
+
+          <div class="field">
+            <div class="label">
+              <label for="commentInput">Comment</label>
+              <span class="counter" id="commentCount">0/150</span>
+            </div>
+            <textarea class="textarea" id="commentInput" rows="3" maxlength="150" placeholder="type the comment you want on the shirt"></textarea>
+          </div>
+
+          <div class="field">
+            <div class="label">
+              <span>Size — cut for a boxy oversized drape</span>
+              <button type="button" class="link-btn" id="sizeChartOpen">Size chart</button>
+            </div>
+            <div class="sizes" id="sizeSelector" role="group" aria-label="Select a size"></div>
+          </div>
+
+          <div class="disclosure" role="note">
+            <span class="dot" aria-hidden="true"></span>
+            <span>Every garment is custom printed on demand. Please allow 3–5 business days for production before shipment tracking updates.</span>
+          </div>
+
+          <div class="waiver">
+            <input type="checkbox" id="waiverCheck" />
+            <label for="waiverCheck">By submitting this custom text, I verify that I own or have explicit permission to use this handle and statement. I agree to indemnify and hold this brand harmless from any third-party intellectual property or publicity claims related to this custom design.</label>
+          </div>
+
+          <button class="btn btn-block" id="addCustomBtn" disabled>Add Custom Tee — $42</button>
+          <p class="pay-note" id="builderHint">Add a photo, handle &amp; comment, pick a size, and accept the waiver to continue.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== Footer ===================== -->
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="cols">
+        <div>
+          <a class="brand" href="/" style="color:var(--text)">Quote<span>Unquote</span></a>
+          <p class="fine">Custom Instagram-comment streetwear on premium Shaka Wear Max Heavyweight blanks. Printed on demand in the USA.</p>
+        </div>
+        <div>
+          <h4>Shop</h4>
+          <a href="#builder">Build Your Own</a>
+          <a href="/track">Track Order</a>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/terms">Terms of Sale &amp; Returns</a>
+          <a href="/shipping">Shipping Policy</a>
+        </div>
+      </div>
+      <p class="fine">© <span id="year">2026</span> QuoteUnquote. All handles and comments printed to order are the responsibility of the submitting customer per our Terms of Sale. QuoteUnquote is not affiliated with, endorsed by, or sponsored by Instagram or Meta Platforms, Inc.</p>
+    </div>
+  </footer>
+
+  <!-- ===================== Cart drawer ===================== -->
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="drawer" id="cartDrawer" aria-label="Shopping cart" aria-hidden="true">
+    <div class="drawer-head">
+      <h3>Your Cart</h3>
+      <button class="x-btn" id="cartClose" aria-label="Close cart">&times;</button>
+    </div>
+    <div class="drawer-body" id="cartItems"></div>
+    <div class="drawer-foot">
+      <div class="totals" id="cartTotals" hidden>
+        <div class="row"><span>Subtotal</span><span id="cartSubtotal">$0.00</span></div>
+        <div class="row"><span>Shipping</span><span id="cartShipping">—</span></div>
+        <div class="row grand"><span>Total</span><span id="cartTotal">$0.00</span></div>
+      </div>
+
+      <div class="disclosure" style="text-transform:none">
+        <span class="dot" aria-hidden="true"></span>
+        <span>Custom garments are printed on demand — allow 3–5 business days for production before tracking updates.</span>
+      </div>
+
+      <button class="btn btn-block" id="checkoutBtn" disabled>Checkout</button>
+
+      <div id="paymentSection" hidden>
+        <div id="payment-request-button"><!-- Apple Pay / Google Pay mounts here --></div>
+        <div class="pay-sep" id="paySep">— or pay by card —</div>
+        <div class="pay-fields">
+          <input id="payEmail" type="email" placeholder="Email for receipt &amp; tracking" autocomplete="email" />
+          <input id="payName" type="text" placeholder="Full name" autocomplete="name" />
+          <input id="payAddress" type="text" placeholder="Street address" autocomplete="address-line1" />
+          <div class="two">
+            <input id="payCity" type="text" placeholder="City" autocomplete="address-level2" />
+            <input id="payState" type="text" placeholder="State" autocomplete="address-level1" />
+          </div>
+          <div class="two">
+            <input id="payZip" type="text" placeholder="ZIP" autocomplete="postal-code" />
+            <input id="payCountry" type="text" placeholder="Country (US)" value="US" autocomplete="country" maxlength="2" />
+          </div>
+        </div>
+        <div id="card-element"><!-- Stripe Card Element mounts here --></div>
+        <button class="btn btn-block" id="payNowBtn" style="margin-top:12px">Pay Now</button>
+        <p class="pay-note">Payments are processed securely by Stripe. Your card details never touch our servers.</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===================== Avatar crop modal ===================== -->
+  <div class="modal-backdrop" id="cropModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cropTitle">
+      <div class="modal-head">
+        <h3 id="cropTitle">Crop Your Avatar</h3>
+        <button class="x-btn" id="cropCancel" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="crop-stage"><img id="cropImage" alt="Image to crop" /></div>
+        <div class="crop-controls">
+          <button type="button" class="size-btn" id="cropZoomOut" aria-label="Zoom out">&minus;</button>
+          <button type="button" class="size-btn" id="cropZoomIn" aria-label="Zoom in">+</button>
+          <button type="button" class="size-btn" id="cropRotate" aria-label="Rotate">&#8635;</button>
+        </div>
+        <button class="btn btn-block" id="cropApply" style="margin-top:16px">Apply Circle Crop</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== Size chart modal ===================== -->
+  <div class="modal-backdrop" id="sizeModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="sizeModalTitle">
+      <div class="modal-head">
+        <h3 id="sizeModalTitle">Size Chart</h3>
+        <button class="x-btn" id="sizeModalClose" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="mono" style="font-size:12px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em">Shaka Wear Max Heavyweight 7.5oz · rigid, oversized boxy drape</p>
+        <table class="size-table">
+          <thead>
+            <tr><th>Size</th><th>Chest (in, flat)</th><th>Body Length (in)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>S</td><td>20</td><td>28</td></tr>
+            <tr><td>M</td><td>22</td><td>29</td></tr>
+            <tr><td>L</td><td>24</td><td>30</td></tr>
+            <tr><td>XL</td><td>26</td><td>31</td></tr>
+            <tr><td>2XL</td><td>28</td><td>32</td></tr>
+            <tr><td>3XL</td><td>30</td><td>33</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:13px;line-height:1.6;margin-top:14px">These blanks run <strong>boxy and heavyweight</strong> by design. Chest is measured flat (armpit to armpit) — double it for full circumference. Take your normal size for a true-to-size structured fit; size down one for a trimmer look.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-wrap" id="toasts" aria-live="assertive"></div>
+
+  <script src="/vendor/cropper.min.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

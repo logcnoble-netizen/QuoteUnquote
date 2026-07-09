@@ -1,0 +1,98 @@
+[
+  {
+    "id": "r_001",
+    "handle": "@deadmall.jpg",
+    "verified": true,
+    "rating": 5,
+    "body": "The Shaka Wear blank is no joke. 7.5oz, boxy, sits like a heavyweight vintage tee. Print is crisp — my comment looks exactly like the mockup. Never buying thin tees again.",
+    "hasPhoto": true,
+    "photoShade": "char",
+    "size": "XL",
+    "approved": true,
+    "createdAt": "2026-06-02T15:12:00Z"
+  },
+  {
+    "id": "r_002",
+    "handle": "@notyourbabe",
+    "verified": true,
+    "rating": 5,
+    "body": "Fabric feels premium and structured, not floppy. The oversized drape is perfect over cargos. Got 3 comments about it the first day.",
+    "hasPhoto": false,
+    "photoShade": null,
+    "size": "L",
+    "approved": true,
+    "createdAt": "2026-06-05T09:44:00Z"
+  },
+  {
+    "id": "r_003",
+    "handle": "@concrete.sundays",
+    "verified": true,
+    "rating": 5,
+    "body": "Ordered a custom comment for my group chat. The handle formatting is dead-on Instagram. Heavyweight Shaka fabric holds the print beautifully after 4 washes.",
+    "hasPhoto": true,
+    "photoShade": "bone",
+    "size": "2XL",
+    "approved": true,
+    "createdAt": "2026-06-09T18:20:00Z"
+  },
+  {
+    "id": "r_004",
+    "handle": "@lowfidelity",
+    "verified": true,
+    "rating": 4,
+    "body": "Runs boxy and heavy like they say — size down if you don't want oversized. Quality of the Max Heavyweight blank is genuinely excellent for the price.",
+    "hasPhoto": false,
+    "photoShade": null,
+    "size": "M",
+    "approved": true,
+    "createdAt": "2026-06-11T11:03:00Z"
+  },
+  {
+    "id": "r_005",
+    "handle": "@sadgirl.autumn",
+    "verified": true,
+    "rating": 5,
+    "body": "The 300 DPI print is razor sharp — you can read every letter of the comment across the room. Shaka Wear fabric is thick and structured. Obsessed.",
+    "hasPhoto": true,
+    "photoShade": "white",
+    "size": "S",
+    "approved": true,
+    "createdAt": "2026-06-15T20:51:00Z"
+  },
+  {
+    "id": "r_006",
+    "handle": "@brutal.mondays",
+    "verified": true,
+    "rating": 5,
+    "body": "Production took 4 business days exactly like the site said, then tracking updated. No surprises. The tee itself is a tank — proper heavyweight streetwear weight.",
+    "hasPhoto": false,
+    "photoShade": null,
+    "size": "3XL",
+    "approved": true,
+    "createdAt": "2026-06-20T13:37:00Z"
+  },
+  {
+    "id": "r_007",
+    "handle": "@offline.era",
+    "verified": true,
+    "rating": 5,
+    "body": "Bought two. The bone colorway with a black comment print is unreal. Shaka Wear feel is dense and premium, hem sits perfectly boxy.",
+    "hasPhoto": true,
+    "photoShade": "char",
+    "size": "L",
+    "approved": true,
+    "createdAt": "2026-06-24T08:15:00Z"
+  },
+  {
+    "id": "r_008",
+    "handle": "@thistooshallpost",
+    "verified": true,
+    "rating": 4,
+    "body": "Great heavyweight fabric and the comment layout is convincing. Only wish there were more blank colors. Print quality itself is flawless.",
+    "hasPhoto": false,
+    "photoShade": null,
+    "size": "XL",
+    "approved": true,
+    "createdAt": "2026-06-28T16:42:00Z"
+  }
+]

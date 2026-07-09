@@ -1,0 +1,29 @@
+QuoteUnquote — Apple Pay domain association PLACEHOLDER (replace before going live)
+============================================================================
+
+WHAT THIS FILE IS
+-----------------
+Apple Pay on the web requires that every domain serving the Stripe Payment
+Request Button be *verified*. Apple/Stripe verify a domain by fetching a
+specific text file from this exact path, with no file extension:
+
+    https://YOUR-DOMAIN/.well-known/apple-developer-merchantid-domain-association
+
+server.js serves this ".well-known" directory as static text (with
+dotfiles:'allow', because the folder name begins with a dot), so the verifier
+can reach it in production.
+
+HOW TO REPLACE IT
+-----------------
+1. In the Stripe Dashboard: Settings -> Payments -> Payment methods -> Apple Pay
+   -> "Add a new domain", enter your production domain.
+2. Stripe gives you the real association file (a long signed token).
+   Alternatively call the Stripe API: POST /v1/apple_pay/domains.
+3. Overwrite THIS file with that exact content — no comments, no extra
+   whitespace, no file extension. Redeploy.
+4. Verify it resolves as text/plain at the URL above, then re-run domain
+   verification in the Dashboard.
+
+Until you do this, the on-page Apple Pay button will simply not appear
+(Google Pay and the card fallback continue to work). This human-readable
+placeholder is intentionally NOT a valid association token.

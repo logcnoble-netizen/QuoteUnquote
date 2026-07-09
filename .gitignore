@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Secrets — never commit real credentials
+.env
+.env.*
+!.env.example
+
+# Runtime data (mutable order/idempotency store). Seed data is tracked.
+data/orders.json
+data/idempotency.json
+
+# Generated per-order files (customer avatars + composited prints). Transient —
+# recreated at runtime, uploaded to Printify, and pruned by src/cleanup.js.
+data/uploads/
+data/prints/
+
+# Logs & OS cruft
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Optional bundled font binaries dropped in by ops (see assets/fonts/README)
+assets/fonts/*.ttf
+assets/fonts/*.otf

@@ -1,0 +1,6 @@
+/* Tailwind entry point. Compiled to public/tailwind.css via `npm run build:css`.
+   The distinctive brutalist components live in public/styles.css, which is
+   linked AFTER the compiled Tailwind so its class rules always win. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
