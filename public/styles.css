@@ -257,8 +257,9 @@ table.size-table td:first-child, table.size-table th:first-child { font-weight: 
 .drawer.open { transform: translateX(0); }
 .drawer-head { display: flex; align-items: center; justify-content: space-between; padding: 20px 22px; border-bottom: 1px solid var(--line); }
 .drawer-head h3 { margin: 0; text-transform: uppercase; font-size: 19px; letter-spacing: .02em; }
-.drawer-body { flex: 1; overflow: auto; padding: 20px 22px; }
-.drawer-foot { border-top: 1px solid var(--line); padding: 20px 22px; }
+.drawer-scroll { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; }
+.drawer-body { flex: 1 0 auto; padding: 20px 22px; }
+.drawer-foot { flex: 0 0 auto; border-top: 1px solid var(--line); padding: 20px 22px; }
 
 .line-item { display: grid; grid-template-columns: 60px 1fr auto; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--line); }
 .line-item .li-thumb { width: 60px; height: 76px; border: 1px solid var(--line); border-radius: var(--r-sm); display: grid; place-items: center; overflow: hidden; }
