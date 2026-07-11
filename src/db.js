@@ -14,7 +14,11 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
+// DATA_DIR holds mutable runtime state and may be a mounted Railway volume.
+// SEED_DIR holds committed seed data (the product catalog) and always lives in
+// the code image — kept separate so a volume mounted at data/ can't shadow it.
 const DATA_DIR = path.join(__dirname, '..', 'data');
+const SEED_DIR = path.join(__dirname, '..', 'seed');
 const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
 const IDEMPOTENCY_FILE = path.join(DATA_DIR, 'idempotency.json');
 
@@ -35,7 +39,7 @@ function writeJsonAtomic(file, data) {
   fs.renameSync(tmp, file);
 }
 
-const products = readJson(path.join(DATA_DIR, 'products.json'), []);
+const products = readJson(path.join(SEED_DIR, 'products.json'), []);
 let orders = readJson(ORDERS_FILE, []);
 let processedEvents = readJson(IDEMPOTENCY_FILE, []);
 if (!Array.isArray(orders)) orders = [];
