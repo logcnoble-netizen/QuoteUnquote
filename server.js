@@ -37,7 +37,7 @@ const { notifyAdmin } = require('./src/notify');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.join(__dirname, 'public');
-const PUBLIC_URL = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
+const PUBLIC_URL = (process.env.PUBLIC_URL || `http://localhost:${PORT}`).replace(/\/+$/, '');
 const IS_PROD = process.env.NODE_ENV === 'production';
 const { STATUS, PRINTIFY } = cfg;
 
@@ -238,6 +238,13 @@ app.get('/api/orders/track/:token', async (req, res) => {
   return res.json(buildTrackingView(order));
 });
 
+// Public print-file endpoint: Printify downloads the artwork from here by URL at
+// order creation. Order ids are unguessable (random) so this behaves like a
+// signed URL; serveOrderFile() guards against path traversal.
+app.get('/files/print/:orderId/:idx', (req, res) =>
+  serveOrderFile(res, PRINTS_DIR, req.params.orderId, req.params.idx)
+);
+
 // =============================================================================
 // Admin verification API (token-gated) — human approval of drafts
 // =============================================================================
@@ -434,14 +441,11 @@ async function fulfillPodItem(order, item, idx, shipping) {
     avatar: item.avatarPath, // validatePrintFile runs inside; throws err.quarantine on bad image
   });
 
-  // Save the composited print for admin side-by-side verification.
-  try {
-    fs.writeFileSync(path.join(PRINTS_DIR, `${order.id}-${idx}.png`), png.buffer);
-  } catch (e) {
-    console.warn(`[fulfill] could not persist print preview: ${e.message}`);
-  }
-
-  const upload = await printify.uploadImage(`${order.id}-${idx}.png`, png.base64);
+  // The print PNG is the artwork Printify downloads (by URL) at order creation,
+  // so it MUST be written to disk before we create the order. It also doubles
+  // as the admin side-by-side preview.
+  fs.writeFileSync(path.join(PRINTS_DIR, `${order.id}-${idx}.png`), png.buffer);
+  const imageUrl = `${PUBLIC_URL}/files/print/${order.id}/${idx}`;
 
   const variantId = product && product.variants ? product.variants[item.size] : undefined;
   if (!variantId) throw new Error(`No Printify variant id mapped for size ${item.size}.`);
@@ -453,7 +457,7 @@ async function fulfillPodItem(order, item, idx, shipping) {
     blueprintId: product.blueprintId,
     printProviderId: product.printProviderId,
     quantity: item.qty,
-    imageId: upload.id,
+    imageUrl,
     address: {
       first_name: shipping.first_name || 'Customer',
       last_name: shipping.last_name || '',

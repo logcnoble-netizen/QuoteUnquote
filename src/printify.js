@@ -132,7 +132,7 @@ async function listOrders({ page = 1, limit = 20 } = {}) {
  * and adjust `position`/scale as needed. `imageId` is the id returned by
  * uploadImage().
  */
-function buildLineItemOrder({ externalId, label, variantId, quantity, imageId, address, blueprintId, printProviderId }) {
+function buildLineItemOrder({ externalId, label, variantId, quantity, imageUrl, address, blueprintId, printProviderId }) {
   return {
     external_id: externalId,
     label: label || externalId,
@@ -145,7 +145,7 @@ function buildLineItemOrder({ externalId, label, variantId, quantity, imageId, a
         print_areas: {
           front: [
             {
-              src: imageId, // uploaded image id
+              src: imageUrl, // public URL Printify fetches the artwork from
               scale: 1,
               x: 0.5,
               y: 0.5,
