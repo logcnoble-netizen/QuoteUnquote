@@ -296,6 +296,24 @@ app.get('/api/admin/pending', adminAuth, async (req, res) => {
   res.json({ count: orders.length, printifyDraftCount, orders });
 });
 
+// Diagnostic: every order + its status (incl. pending/paid/failed), so a stuck
+// order that never reached the approval queue is still visible.
+app.get('/api/admin/orders', adminAuth, (req, res) => {
+  const all = db.listAllOrders().map((o) => ({
+    id: o.id,
+    status: o.status,
+    createdAt: o.createdAt,
+    amount: o.amount,
+    paymentIntentId: o.paymentIntentId ? String(o.paymentIntentId).slice(0, 14) + '…' : null,
+    hasShipping: !!o.shipping,
+    printifyOrderIds: o.printifyOrderIds || [],
+    quarantineReason: o.quarantineReason || null,
+    fulfillError: o.fulfillError || null,
+    items: (o.items || []).map((it) => ({ handle: it.custom && it.custom.handle, size: it.size, qty: it.qty })),
+  }));
+  res.json({ count: all.length, orders: all });
+});
+
 function serveOrderFile(res, dir, orderId, idx) {
   if (!/^ord_[a-f0-9]+$/.test(orderId) || !/^\d+$/.test(String(idx))) return res.status(400).end();
   const fp = path.join(dir, `${orderId}-${idx}.png`);

@@ -124,6 +124,11 @@ function listOrdersByStatus(statuses) {
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 }
 
+/** Every order (newest first). For the admin all-orders diagnostic view. */
+function listAllOrders() {
+  return orders.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+}
+
 // ---------------------------------------------------------------------------
 // Idempotency ledger (webhook de-dup)
 // ---------------------------------------------------------------------------
@@ -148,6 +153,7 @@ module.exports = {
   getOrderByToken,
   findOrderByPaymentIntent,
   listOrdersByStatus,
+  listAllOrders,
   hasProcessedEvent,
   markEventProcessed,
 };
