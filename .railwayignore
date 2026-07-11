@@ -1,0 +1,19 @@
+# Files railway up should NOT bundle/upload. Railway rebuilds deps itself via
+# nixpacks (npm install), so node_modules must never be uploaded.
+node_modules
+.git
+.env
+.env.*
+*.log
+
+# Runtime/generated data — regenerated on the server.
+data/uploads
+data/prints
+data/orders.json
+data/idempotency.json
+
+# Editor / OS cruft
+.vscode
+.idea
+.DS_Store
+Thumbs.db
