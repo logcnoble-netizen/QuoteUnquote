@@ -529,9 +529,13 @@ function buildTrackingView(order) {
 app.use(
   express.static(PUBLIC_DIR, {
     extensions: ['html'],
+    etag: true,
+    lastModified: true,
     maxAge: IS_PROD ? '1h' : 0,
     setHeaders: (res, filePath) => {
-      if (filePath.endsWith('.html')) res.setHeader('Cache-Control', 'no-cache');
+      // HTML/CSS/JS revalidate on every load (cheap 304s via ETag) so a deploy
+      // shows up on a normal refresh. Other assets keep the longer cache.
+      if (/\.(html|css|js)$/i.test(filePath)) res.setHeader('Cache-Control', 'no-cache');
     },
   })
 );
