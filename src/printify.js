@@ -132,14 +132,14 @@ async function listOrders({ page = 1, limit = 20 } = {}) {
  * and adjust `position`/scale as needed. `imageId` is the id returned by
  * uploadImage().
  */
-function buildLineItemOrder({ externalId, label, variantId, quantity, imageId, address }) {
+function buildLineItemOrder({ externalId, label, variantId, quantity, imageId, address, blueprintId, printProviderId }) {
   return {
     external_id: externalId,
     label: label || externalId,
     line_items: [
       {
-        print_provider_id: PRINTIFY.PRINT_PROVIDER_ID,
-        blueprint_id: PRINTIFY.BLUEPRINT_ID,
+        print_provider_id: printProviderId || PRINTIFY.PRINT_PROVIDER_ID,
+        blueprint_id: blueprintId || PRINTIFY.BLUEPRINT_ID,
         variant_id: variantId,
         quantity,
         print_areas: {

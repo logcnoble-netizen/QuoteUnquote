@@ -10,10 +10,10 @@
     "custom": true,
     "image": "black",
     "description": "Your handle, your comment, your avatar. Printed on demand at 300 DPI on a boxy 7.5oz Shaka Wear Max Heavyweight blank.",
-    "blueprintId": 0,
-    "printProviderId": 0,
+    "blueprintId": 1716,
+    "printProviderId": 74,
     "variants": {
-      "S": 0, "M": 0, "L": 0, "XL": 0, "2XL": 0, "3XL": 0
+      "S": 117443, "M": 117442, "L": 117441, "XL": 117444, "2XL": 117437, "3XL": 117438
     }
   }
 ]

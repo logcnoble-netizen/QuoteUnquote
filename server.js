@@ -432,6 +432,8 @@ async function fulfillPodItem(order, item, idx, shipping) {
     externalId: `${order.id}:${idx}`,
     label: `${cfg.BRAND} ${item.custom.handle}`,
     variantId,
+    blueprintId: product.blueprintId,
+    printProviderId: product.printProviderId,
     quantity: item.qty,
     imageId: upload.id,
     address: {
