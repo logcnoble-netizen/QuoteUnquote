@@ -155,16 +155,20 @@
     return Math.max(0, Math.min(100000000, Math.floor(Number(($('likesInput') || {}).value) || 0)));
   }
 
+  function formatLikeCount(n) {
+    n = Math.max(0, Math.floor(n));
+    if (n < 10000) return n.toLocaleString('en-US');
+    if (n < 1000000) { const k = Math.round(n / 100) / 10; return (Number.isInteger(k) ? k : k.toFixed(1)) + 'k'; }
+    const m = Math.round(n / 100000) / 10;
+    return (Number.isInteger(m) ? m : m.toFixed(1)) + 'M';
+  }
+
   function updateMockLikes() {
     const n = likesValue();
     const el = $('mockLikes');
     if (!el) return;
-    if (n > 0) {
-      el.textContent = n.toLocaleString('en-US') + (n === 1 ? ' like' : ' likes');
-      el.hidden = false;
-    } else {
-      el.hidden = true;
-    }
+    if (n > 0) { el.textContent = formatLikeCount(n); el.hidden = false; }
+    else el.hidden = true;
   }
 
   function builderValues() {

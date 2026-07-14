@@ -65,9 +65,20 @@ function wrapText(ctx, text, maxWidth) {
   return lines;
 }
 
-function formatLikes(n) {
+/**
+ * Instagram-style like count shown under the heart. Full comma number up to
+ * 9,999; above that, "k" rounded to the nearest hundred (e.g. 53,565 -> 53.6k);
+ * millions as "M".
+ */
+function formatLikeCount(n) {
   const v = Math.max(0, Math.floor(Number(n) || 0));
-  return v === 1 ? '1 like' : `${v.toLocaleString('en-US')} likes`;
+  if (v < 10000) return v.toLocaleString('en-US');
+  if (v < 1000000) {
+    const k = Math.round(v / 100) / 10;
+    return (Number.isInteger(k) ? k : k.toFixed(1)) + 'k';
+  }
+  const m = Math.round(v / 100000) / 10;
+  return (Number.isInteger(m) ? m : m.toFixed(1)) + 'M';
 }
 
 /**
@@ -79,9 +90,11 @@ function drawHeart(ctx, cx, cy, size, color) {
   ctx.save();
   ctx.fillStyle = color;
   ctx.beginPath();
-  ctx.moveTo(cx, cy + s * 0.34);
-  ctx.bezierCurveTo(cx - s * 0.62, cy + s * 0.02, cx - s * 0.54, cy - s * 0.46, cx, cy - s * 0.12);
-  ctx.bezierCurveTo(cx + s * 0.54, cy - s * 0.46, cx + s * 0.62, cy + s * 0.02, cx, cy + s * 0.34);
+  ctx.moveTo(cx, cy + s * 0.30);
+  ctx.bezierCurveTo(cx - s * 0.30, cy + s * 0.10, cx - s * 0.50, cy - s * 0.08, cx - s * 0.50, cy - s * 0.22);
+  ctx.bezierCurveTo(cx - s * 0.50, cy - s * 0.40, cx - s * 0.24, cy - s * 0.48, cx, cy - s * 0.22);
+  ctx.bezierCurveTo(cx + s * 0.24, cy - s * 0.48, cx + s * 0.50, cy - s * 0.40, cx + s * 0.50, cy - s * 0.22);
+  ctx.bezierCurveTo(cx + s * 0.50, cy - s * 0.08, cx + s * 0.30, cy + s * 0.10, cx, cy + s * 0.30);
   ctx.closePath();
   ctx.fill();
   ctx.restore();
@@ -158,66 +171,38 @@ async function generatePrintImage({ handle, comment, likes = 0, avatar }) {
   ctx.textBaseline = 'top';
   ctx.antialias = 'subpixel';
 
-  // ---- IG-accurate metrics (handle & comment share the same size) ----------
+  // ---- Metrics --------------------------------------------------------------
   const margin = round(W * 0.085);
-  const F = round(W * 0.05); // base text size
-  const metaF = round(F * 0.82);
-  const lineH = round(F * 1.36);
+  const F = round(W * 0.05); // base text size (handle + comment)
+  const metaF = round(F * 0.8); // time, Reply, like count
+  const lineH = round(F * 1.4);
   const avatarD = round(F * 2.6); // profile pic diameter
   const avatarR = round(avatarD / 2);
   const gap = round(F * 0.72); // avatar -> text
   const textX = margin + avatarD + gap;
-  const textW = W - textX - margin;
-  const metaGap = round(F * 0.5);
 
   const boldFont = (px) => `bold ${px}px ${FONT_FAMILY}`;
   const regFont = (px) => `${px}px ${FONT_FAMILY}`;
 
-  // ---- Lay out the inline "bold handle + regular comment" paragraph --------
-  const segs = [];
-  ctx.font = boldFont(F);
-  const spaceBold = ctx.measureText(' ').width;
-  segs.push({ text: handle, x: textX, line: 0, bold: true });
-  let cursor = textX + ctx.measureText(handle).width + spaceBold;
-  let line = 0;
+  // Right-hand like column: heart with the count directly below it (IG style).
+  const heartSize = round(F * 1.2);
+  const countText = Number(likes) > 0 ? formatLikeCount(likes) : '';
+  ctx.font = regFont(metaF);
+  const countW = countText ? ctx.measureText(countText).width : 0;
+  const likeColW = Math.max(heartSize, countW) + round(F * 0.5);
+  const textW = W - margin - likeColW - textX;
 
+  // ---- Wrap the comment -----------------------------------------------------
   ctx.font = regFont(F);
-  const spaceReg = ctx.measureText(' ').width;
-  const words = String(comment).split(/\s+/).filter(Boolean);
-  for (const word of words) {
-    const wW = ctx.measureText(word).width;
-    if (wW > textW) {
-      // hard-break a token longer than the whole line
-      let chunk = '';
-      for (const ch of word) {
-        if (cursor + ctx.measureText(chunk + ch).width > textX + textW && (chunk || cursor > textX)) {
-          if (chunk) segs.push({ text: chunk, x: cursor, line, bold: false });
-          line += 1;
-          cursor = textX;
-          chunk = ch;
-        } else {
-          chunk += ch;
-        }
-      }
-      if (chunk) {
-        segs.push({ text: chunk, x: cursor, line, bold: false });
-        cursor += ctx.measureText(chunk).width + spaceReg;
-      }
-      continue;
-    }
-    if (cursor + wW > textX + textW && cursor > textX) { line += 1; cursor = textX; }
-    segs.push({ text: word, x: cursor, line, bold: false });
-    cursor += wW + spaceReg;
-  }
-  const numLines = line + 1;
+  const commentLines = wrapText(ctx, comment, textW);
+  const numComment = Math.max(1, commentLines.length);
 
-  // ---- Vertically center the whole block on the upper chest ----------------
-  const textBlockH = numLines * lineH + metaGap + metaF;
-  const blockH = Math.max(avatarD, textBlockH);
+  // Rows: handle/time + comment lines + Reply.
+  const totalLines = 1 + numComment + 1;
+  const blockH = Math.max(avatarD, totalLines * lineH);
   const topY = round(H * 0.32 - blockH / 2);
-  const contentTop = textBlockH >= avatarD ? topY : topY + round((avatarD - textBlockH) / 2);
 
-  // ---- Circular avatar (clip mask over the user image) ---------------------
+  // ---- Circular avatar ------------------------------------------------------
   const avatarCX = margin + avatarR;
   const avatarCY = topY + avatarR;
   ctx.save();
@@ -236,25 +221,38 @@ async function generatePrintImage({ handle, comment, likes = 0, avatar }) {
   ctx.strokeStyle = 'rgba(255,255,255,0.22)';
   ctx.stroke();
 
-  // ---- Draw the inline handle + comment ------------------------------------
-  for (const s of segs) {
-    ctx.font = s.bold ? boldFont(F) : regFont(F);
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText(s.text, s.x, contentTop + s.line * lineH);
-  }
-
-  // ---- Grey meta row: "2h   1,234 likes   Reply" ---------------------------
-  const metaY = contentTop + numLines * lineH + metaGap;
+  // ---- Line 1: bold @handle + grey time ------------------------------------
+  let y = topY;
+  ctx.font = boldFont(F);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText(handle, textX, y);
+  const handleW = ctx.measureText(handle).width;
   ctx.font = regFont(metaF);
   ctx.fillStyle = '#a8a8a8';
-  const parts = ['2h'];
-  if (Number(likes) > 0) parts.push(formatLikes(likes));
-  parts.push('Reply');
-  ctx.fillText(parts.join('     '), textX, metaY);
+  ctx.fillText('2h', textX + handleW + round(F * 0.36), y + (F - metaF));
+  y += lineH;
 
-  // ---- Red "liked" heart, top-right, aligned to the first line -------------
-  const heartSize = round(F * 0.82);
-  drawHeart(ctx, W - margin - round(heartSize / 2), contentTop + round(F * 0.55), heartSize, '#ed4956');
+  // ---- Comment (white) ------------------------------------------------------
+  ctx.font = regFont(F);
+  ctx.fillStyle = '#ffffff';
+  for (const ln of commentLines) { ctx.fillText(ln, textX, y); y += lineH; }
+
+  // ---- Reply (grey) ---------------------------------------------------------
+  ctx.font = regFont(metaF);
+  ctx.fillStyle = '#a8a8a8';
+  ctx.fillText('Reply', textX, y + round(F * 0.04));
+
+  // ---- Red filled heart + like count on the right --------------------------
+  const heartCX = W - margin - round(likeColW / 2);
+  const heartCY = topY + round(heartSize * 0.55);
+  drawHeart(ctx, heartCX, heartCY, heartSize, '#ed4956');
+  if (countText) {
+    ctx.font = regFont(metaF);
+    ctx.fillStyle = '#c8c8c8';
+    ctx.textAlign = 'center';
+    ctx.fillText(countText, heartCX, heartCY + round(heartSize * 0.55) + round(F * 0.12));
+    ctx.textAlign = 'left';
+  }
 
   const buffer = canvas.toBuffer('image/png');
   if (!buffer || buffer.length < 1000) {
