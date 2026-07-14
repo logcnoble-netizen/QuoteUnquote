@@ -110,6 +110,26 @@ async function getOrder(printifyOrderId) {
   }
 }
 
+/**
+ * Resolve Printify's rendered mockup (the shirt with the design on it) for an
+ * order: order -> line_item.product_id -> product.images -> default/front src.
+ * @returns {Promise<string|null>} public mockup image URL, or null if not ready.
+ */
+async function getOrderMockup(printifyOrderId) {
+  assertConfigured();
+  const order = await getOrder(printifyOrderId);
+  const pid = order.line_items && order.line_items[0] && order.line_items[0].product_id;
+  if (!pid) return null;
+  try {
+    const { data } = await http.get(`/v1/shops/${SHOP_ID}/products/${pid}.json`);
+    const imgs = data.images || [];
+    const front = imgs.find((i) => i.is_default) || imgs.find((i) => i.position === 'front') || imgs[0];
+    return front ? front.src : null;
+  } catch (err) {
+    throw normalizeError(err, 'product mockup fetch');
+  }
+}
+
 /** List shop orders (paginated). Used by the admin verification queue. */
 async function listOrders({ page = 1, limit = 20 } = {}) {
   assertConfigured();
@@ -166,6 +186,7 @@ module.exports = {
   createOrder,
   sendToProduction,
   getOrder,
+  getOrderMockup,
   listOrders,
   buildLineItemOrder,
   isConfigured: () => !!(TOKEN && SHOP_ID),

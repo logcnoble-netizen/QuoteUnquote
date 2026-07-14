@@ -166,7 +166,12 @@ a { color: inherit; }
 
 /* ---- Builder module ------------------------------------------------------- */
 .builder { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 30px; align-items: start; }
-@media (max-width: 900px) { .builder { grid-template-columns: 1fr; } }
+@media (max-width: 900px) {
+  .builder { grid-template-columns: 1fr; }
+  /* Stop the preview from sticking over the form fields on stacked layouts.
+     `.builder .stage` outranks the later base `.stage { position:sticky }`. */
+  .builder .stage { position: static; top: auto; aspect-ratio: auto; height: 44vh; padding: 16px; }
+}
 
 .stage {
   position: sticky; top: 84px;
@@ -177,26 +182,27 @@ a { color: inherit; }
 }
 .tee-wrap { position: relative; width: 100%; max-width: 470px; }
 .tee-svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 26px 44px rgba(0, 0, 0, 0.55)); }
-.tee-svg .tee-body { fill: var(--tee-fill, #23232a); stroke: rgba(255, 255, 255, 0.10); stroke-width: 2; }
+.tee-svg .tee-body { fill: url(#teeGrad); stroke: rgba(255, 255, 255, 0.09); stroke-width: 2; }
 .tee-svg .tee-seam { fill: none; stroke: rgba(255, 255, 255, 0.08); stroke-width: 2; }
 
 /* Instagram comment overlay (on the chest) */
 .ig-comment {
-  position: absolute; left: 50%; top: 36%; transform: translate(-50%, -50%);
-  width: 47%; display: flex; gap: 8px; align-items: flex-start;
+  position: absolute; left: 50%; top: 37%; transform: translate(-50%, -50%);
+  width: 52%; display: flex; gap: 9px; align-items: flex-start;
 }
 .tee-dark .ig-comment, .ig-comment { color: #fff; }
 .ig-avatar {
-  flex: 0 0 auto; width: 30px; height: 30px; border-radius: 50%;
-  background: #fff; color: #18181b;
-  display: grid; place-items: center; font-weight: 700; font-size: 13px;
+  flex: 0 0 auto; width: 34px; height: 34px; border-radius: 50%; overflow: hidden;
+  background-color: #dbdbdb; color: #262626;
+  display: grid; place-items: center; font-weight: 700; font-size: 15px;
 }
 .ig-body { min-width: 0; }
-.ig-line { font-size: 12px; line-height: 1.32; word-break: break-word; }
+.ig-line { font-size: 12.5px; line-height: 1.36; word-break: break-word; letter-spacing: -0.01em; }
 .ig-handle { font-weight: 700; margin-right: 5px; }
 .ig-text { font-weight: 400; }
-.ig-meta { margin-top: 4px; font-size: 9.5px; color: rgba(255, 255, 255, 0.55); display: flex; gap: 10px; }
-.ig-heart { margin-left: auto; color: #ed4956; font-size: 13px; line-height: 1; }
+.ig-meta { margin-top: 6px; font-size: 10px; color: rgba(255, 255, 255, 0.62); display: flex; gap: 13px; align-items: center; }
+.ig-meta span:not(:first-child) { font-weight: 600; }
+.ig-heart { margin-left: auto; color: var(--like); font-size: 13px; line-height: 1; align-self: flex-start; margin-top: 2px; }
 
 /* Builder form */
 .panel { border: 1px solid var(--line); background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow-sm), var(--hi); padding: 24px; }
@@ -358,7 +364,8 @@ table.size-table td:first-child, table.size-table th:first-child { font-weight: 
 .admin-imgs figure { margin: 0; text-align: center; }
 .admin-imgs img { display: block; border: 1px solid var(--line); border-radius: 10px; background: #0e0e10; }
 .admin-imgs img.pv-avatar { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; }
-.admin-imgs img.pv-print { width: 150px; height: auto; }
+.admin-imgs img.pv-print { width: 140px; height: auto; }
+.admin-imgs img.pv-mockup { width: 180px; height: auto; border-radius: 12px; background: #fff; }
 .admin-imgs figcaption { font-family: var(--font-mono); font-size: 10px; color: var(--text-faint); margin-top: 5px; text-transform: uppercase; letter-spacing: .05em; }
 .admin-details { flex: 1; min-width: 220px; }
 .chip.badge-quarantine { background: #3a1414; color: #ffb4b4; border-color: #5a1f1f; }

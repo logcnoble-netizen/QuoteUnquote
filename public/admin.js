@@ -79,10 +79,26 @@
         card.appendChild(el('p', { class: 'mono', style: 'font-size:11px;color:var(--text-faint);margin:4px 0', text: 'Printify: ' + o.printifyOrderIds.join(', ') }));
       }
 
+      const adminToken = encodeURIComponent(sessionStorage.getItem(TOKEN_KEY) || '');
+
       (o.lines || []).forEach((ln) => {
+        const mockFig = el('figure', {},
+          el('img', { class: 'pv-mockup', alt: 'Printify mockup', loading: 'lazy' }),
+          el('figcaption', { text: 'Printify mockup' })
+        );
+        const mockImg = mockFig.querySelector('img');
+        mockImg.style.display = 'none';
+        if (o.printifyOrderIds && o.printifyOrderIds.length) {
+          fetch('/api/admin/mockup/' + encodeURIComponent(o.orderId) + '?token=' + adminToken)
+            .then((r) => (r.ok ? r.json() : null))
+            .then((d) => { if (d && d.url) { mockImg.src = d.url; mockImg.style.display = ''; } })
+            .catch(() => {});
+        }
+
         const imgs = el('div', { class: 'admin-imgs' },
-          el('figure', {}, el('img', { class: 'pv-avatar', src: ln.avatarUrl, alt: 'avatar', loading: 'lazy' }), el('figcaption', { text: 'Uploaded avatar' })),
-          el('figure', {}, el('img', { class: 'pv-print', src: ln.printUrl, alt: 'print', loading: 'lazy' }), el('figcaption', { text: 'Print file (on black)' }))
+          mockFig,
+          el('figure', {}, el('img', { class: 'pv-print', src: ln.printUrl, alt: 'print', loading: 'lazy' }), el('figcaption', { text: 'Print file' })),
+          el('figure', {}, el('img', { class: 'pv-avatar', src: ln.avatarUrl, alt: 'avatar', loading: 'lazy' }), el('figcaption', { text: 'Avatar' }))
         );
         // hide broken images (e.g. pruned by the retention sweeper)
         imgs.querySelectorAll('img').forEach((im) => { im.addEventListener('error', () => { im.style.display = 'none'; }); });

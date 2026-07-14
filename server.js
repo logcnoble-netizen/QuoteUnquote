@@ -67,7 +67,7 @@ const cspDirectives = {
   scriptSrc: ["'self'", 'https://js.stripe.com'],
   styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
   fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
-  imgSrc: ["'self'", 'data:', 'blob:'], // data:/blob: for cropper + avatar preview
+  imgSrc: ["'self'", 'data:', 'blob:', 'https://images-api.printify.com'], // + Printify mockups on /admin
   connectSrc: ["'self'", 'https://api.stripe.com'],
   frameSrc: ['https://js.stripe.com', 'https://hooks.stripe.com'],
   formAction: ["'self'"],
@@ -335,6 +335,22 @@ app.get('/api/admin/print/:orderId/:idx', adminAuth, (req, res) =>
 app.get('/api/admin/avatar/:orderId/:idx', adminAuth, (req, res) =>
   serveOrderFile(res, UPLOADS_DIR, req.params.orderId, req.params.idx)
 );
+
+// Printify's rendered product mockup (the shirt with the design on it).
+app.get('/api/admin/mockup/:orderId', adminAuth, async (req, res) => {
+  const order = db.getOrder(String(req.params.orderId || ''));
+  if (!order || !order.printifyOrderIds || !order.printifyOrderIds.length) {
+    return res.status(404).json({ error: 'No Printify order for this id.' });
+  }
+  try {
+    const url = await printify.getOrderMockup(order.printifyOrderIds[0]);
+    if (!url) return res.status(404).json({ error: 'Mockup not ready yet.' });
+    return res.json({ url });
+  } catch (err) {
+    console.warn(`[admin] mockup fetch failed for ${order.id}: ${err.message}`);
+    return res.status(502).json({ error: 'Could not fetch mockup.' });
+  }
+});
 
 // =============================================================================
 // Stripe webhook (unchanged flow; POD-only fulfillment)
