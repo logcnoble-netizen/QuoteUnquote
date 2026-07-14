@@ -102,6 +102,10 @@ function validateCheckout(body, catalog) {
     const avatar = validateAvatarDataUrl(raw.avatarDataUrl);
     if (!avatar.ok) errors.push(`Line ${n}: ${avatar.reason}.`);
 
+    let likes = Math.floor(Number(custom.likes));
+    if (!Number.isFinite(likes) || likes < 0) likes = 0;
+    if (likes > 100000000) likes = 100000000;
+
     const normHandle = handle.startsWith('@') ? handle : `@${handle}`;
     items.push({
       id: product.id,
@@ -111,7 +115,7 @@ function validateCheckout(body, catalog) {
       unitPrice: product.price,
       currency: product.currency,
       fulfillment_type: 'POD',
-      custom: { handle: normHandle.slice(0, HANDLE_MAX), comment },
+      custom: { handle: normHandle.slice(0, HANDLE_MAX), comment, likes },
       avatarDataUrl: avatar.ok ? raw.avatarDataUrl : null, // persisted to disk by the route
     });
   });

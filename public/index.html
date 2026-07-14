@@ -82,7 +82,7 @@
                   <span class="ig-handle" id="mockHandle">yourhandle</span><span class="ig-text" id="mockText">your comment goes here</span>
                 </div>
                 <div class="ig-meta">
-                  <span>2h</span><span>Reply</span><span>See translation</span>
+                  <span>2h</span><span id="mockLikes" hidden>0 likes</span><span>Reply</span>
                 </div>
               </div>
               <div class="ig-heart" aria-label="liked">&#9829;</div>
@@ -123,6 +123,14 @@
               <span class="counter" id="commentCount">0/150</span>
             </div>
             <textarea class="textarea" id="commentInput" rows="3" maxlength="150" placeholder="type the comment you want on the shirt"></textarea>
+          </div>
+
+          <div class="field">
+            <div class="label">
+              <label for="likesInput">Likes</label>
+              <span class="counter">Optional — shown in the comment</span>
+            </div>
+            <input class="input" id="likesInput" type="number" min="0" max="100000000" step="1" inputmode="numeric" placeholder="e.g. 1204" autocomplete="off" />
           </div>
 
           <div class="field">

@@ -438,6 +438,7 @@ async function fulfillPodItem(order, item, idx, shipping) {
   const png = await printEngine.generatePrintImage({
     handle: item.custom.handle,
     comment: item.custom.comment,
+    likes: item.custom.likes || 0,
     avatar: item.avatarPath, // validatePrintFile runs inside; throws err.quarantine on bad image
   });
 

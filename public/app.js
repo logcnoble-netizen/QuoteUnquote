@@ -144,8 +144,27 @@
       validateBuilder();
     });
 
+    const likesEl = $('likesInput');
+    if (likesEl) likesEl.addEventListener('input', updateMockLikes);
+
     if (waiver) waiver.addEventListener('change', validateBuilder);
     $('addCustomBtn').addEventListener('click', addCustomToCart);
+  }
+
+  function likesValue() {
+    return Math.max(0, Math.min(100000000, Math.floor(Number(($('likesInput') || {}).value) || 0)));
+  }
+
+  function updateMockLikes() {
+    const n = likesValue();
+    const el = $('mockLikes');
+    if (!el) return;
+    if (n > 0) {
+      el.textContent = n.toLocaleString('en-US') + (n === 1 ? ' like' : ' likes');
+      el.hidden = false;
+    } else {
+      el.hidden = true;
+    }
   }
 
   function builderValues() {
@@ -153,6 +172,7 @@
     return {
       handle: raw ? '@' + raw : '',
       comment: ($('commentInput').value || '').trim(),
+      likes: likesValue(),
       waiver: $('waiverCheck').checked,
     };
   }
@@ -189,7 +209,7 @@
     const v = builderValues();
     cart.push({
       uid: uid(), id: PRODUCT.id, title: 'Custom Comment Tee', size: selectedSize, qty: 1,
-      unitPrice: PRODUCT.price, custom: { handle: v.handle, comment: v.comment }, avatarDataUrl,
+      unitPrice: PRODUCT.price, custom: { handle: v.handle, comment: v.comment, likes: v.likes }, avatarDataUrl,
     });
     if (!saveCart()) { toast('Cart is full (browser storage limit). Remove an item or check out.', true); cart.pop(); return; }
     resetPayment();
@@ -336,11 +356,13 @@
     $('cartDrawer').classList.add('open');
     $('cartDrawer').setAttribute('aria-hidden', 'false');
     $('drawerBackdrop').classList.add('open');
+    document.body.classList.add('no-scroll'); // lock the page behind the drawer
   }
   function closeCart() {
     $('cartDrawer').classList.remove('open');
     $('cartDrawer').setAttribute('aria-hidden', 'true');
     $('drawerBackdrop').classList.remove('open');
+    document.body.classList.remove('no-scroll');
   }
 
   function renderCart() {
