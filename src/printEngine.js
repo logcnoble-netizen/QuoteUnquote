@@ -50,16 +50,27 @@ if (canvasLib) {
 const unavailable = () =>
   new Error(`Print engine unavailable: ${canvasLoadError ? canvasLoadError.message : 'canvas not installed'}`);
 
-/** Legacy simple word-wrap (kept for compatibility / tests). */
+/** Word-wrap that also hard-breaks any single token wider than the box, so a
+ *  long no-space string can never overflow the print area. */
 function wrapText(ctx, text, maxWidth) {
   const words = String(text).split(/\s+/).filter(Boolean);
   const lines = [];
   let line = '';
   for (const word of words) {
-    const candidate = line ? `${line} ${word}` : word;
-    if (ctx.measureText(candidate).width <= maxWidth) { line = candidate; continue; }
-    if (line) lines.push(line);
-    line = word;
+    if (ctx.measureText(word).width <= maxWidth) {
+      const candidate = line ? `${line} ${word}` : word;
+      if (ctx.measureText(candidate).width <= maxWidth) { line = candidate; }
+      else { if (line) lines.push(line); line = word; }
+      continue;
+    }
+    // token longer than the whole line — break it character by character
+    if (line) { lines.push(line); line = ''; }
+    let chunk = '';
+    for (const ch of word) {
+      if (ctx.measureText(chunk + ch).width > maxWidth && chunk) { lines.push(chunk); chunk = ch; }
+      else chunk += ch;
+    }
+    line = chunk;
   }
   if (line) lines.push(line);
   return lines;
@@ -229,11 +240,11 @@ async function generatePrintImage({ handle, comment, likes = 0, avatar }) {
   const commentLines = wrapText(ctx, comment, textW);
   const numComment = Math.max(1, commentLines.length);
 
-  // Rows: handle line(s) + comment line(s) + "See translation" + "Reply".
+  // Rows: handle line(s) + comment line(s) + one meta line (translation/reply).
   const metaLineH = round(metaF * 1.5);
-  const totalTextH = lineH * (handleLineCount + numComment) + metaLineH * 2;
+  const totalTextH = lineH * (handleLineCount + numComment) + metaLineH;
   const blockH = Math.max(avatarD, totalTextH);
-  const topY = round(H * 0.32 - blockH / 2);
+  const topY = round(H * 0.28 - blockH / 2); // slightly higher on the chest
 
   // ---- Circular avatar ------------------------------------------------------
   const avatarCX = margin + avatarR;
@@ -269,12 +280,12 @@ async function generatePrintImage({ handle, comment, likes = 0, avatar }) {
   ctx.fillStyle = '#ffffff';
   for (const ln of commentLines) { ctx.fillText(ln, textX, y); y += lineH; }
 
-  // ---- Meta: "See translation" then "Reply" (grey) -------------------------
+  // ---- Meta: "See translation   Reply" on one line (grey) ------------------
   ctx.font = regFont(metaF);
   ctx.fillStyle = '#a8a8a8';
   ctx.fillText('See translation', textX, y);
-  y += metaLineH;
-  ctx.fillText('Reply', textX, y);
+  const seeW = ctx.measureText('See translation').width;
+  ctx.fillText('Reply', textX + seeW + round(F * 0.7), y);
 
   // ---- Red filled heart + like count on the right --------------------------
   const heartCX = W - margin - round(likeColW / 2);
