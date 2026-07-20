@@ -96,36 +96,29 @@ function formatLikeCount(n) {
  * Clean, symmetric Instagram-style filled heart centered at (cx, cy).
  * Two mirrored bezier lobes meeting at a top dip and a bottom point.
  */
-// Instagram's exact heart glyph (48x48 viewBox), filled. Vector, so it stays
-// crisp at 300 DPI — sharper than any raster PNG at print size. The same path
-// is used in the on-site preview (public/index.html) so they're identical.
-const IG_HEART_PATH =
-  'M34.6 3.1c-4.5 0-7.9 1.8-10.6 5.6-2.7-3.7-6.1-5.5-10.6-5.5C6 3.2 0 9.5 0 17.6c0 7.3 5.4 12 10.6 16.7.6.5 1.3 1.2 2 1.9l7.8 7c.9.8 2.1 1.2 3.6 1.2s2.7-.4 3.6-1.2l7.8-7c.7-.7 1.4-1.3 2-1.9C42.6 29.6 48 25 48 17.6c0-8.1-6-14.4-13.4-14.4Z';
-
+// Instagram's exact heart glyph (its 48x48 SVG path converted to absolute
+// bezier coordinates). Drawn with core canvas commands so it renders identically
+// to the on-site preview without depending on node-canvas Path2D/SVG support.
 function drawHeart(ctx, cx, cy, size, color) {
+  const scale = size / 48;
   ctx.save();
   ctx.fillStyle = color;
-  let ok = false;
-  try {
-    const scale = size / 48;
-    ctx.translate(cx - 24 * scale, cy - 23 * scale);
-    ctx.scale(scale, scale);
-    ctx.fill(new canvasLib.Path2D(IG_HEART_PATH));
-    ok = true;
-  } catch (e) { /* Path2D/SVG unsupported — fall back below */ }
-  ctx.restore();
-  if (ok) return;
-
-  // Fallback bezier heart (used only if Path2D SVG parsing is unavailable).
-  const s = size;
-  ctx.save();
-  ctx.fillStyle = color;
+  ctx.translate(cx - 24 * scale, cy - 23.5 * scale);
+  ctx.scale(scale, scale);
   ctx.beginPath();
-  ctx.moveTo(cx, cy + s * 0.30);
-  ctx.bezierCurveTo(cx - s * 0.30, cy + s * 0.10, cx - s * 0.50, cy - s * 0.08, cx - s * 0.50, cy - s * 0.22);
-  ctx.bezierCurveTo(cx - s * 0.50, cy - s * 0.40, cx - s * 0.24, cy - s * 0.48, cx, cy - s * 0.22);
-  ctx.bezierCurveTo(cx + s * 0.24, cy - s * 0.48, cx + s * 0.50, cy - s * 0.40, cx + s * 0.50, cy - s * 0.22);
-  ctx.bezierCurveTo(cx + s * 0.50, cy - s * 0.08, cx + s * 0.30, cy + s * 0.10, cx, cy + s * 0.30);
+  ctx.moveTo(34.6, 3.1);
+  ctx.bezierCurveTo(30.1, 3.1, 26.7, 4.9, 24, 8.7);
+  ctx.bezierCurveTo(21.3, 5, 17.9, 3.2, 13.4, 3.2);
+  ctx.bezierCurveTo(6, 3.2, 0, 9.5, 0, 17.6);
+  ctx.bezierCurveTo(0, 24.9, 5.4, 29.6, 10.6, 34.3);
+  ctx.bezierCurveTo(11.2, 34.8, 11.9, 35.5, 12.6, 36.2);
+  ctx.lineTo(20.4, 43.2);
+  ctx.bezierCurveTo(21.3, 44, 22.5, 44.4, 24, 44.4);
+  ctx.bezierCurveTo(25.5, 44.4, 26.7, 44, 27.6, 43.2);
+  ctx.lineTo(35.4, 36.2);
+  ctx.bezierCurveTo(36.1, 35.5, 36.8, 34.9, 37.4, 34.3);
+  ctx.bezierCurveTo(42.6, 29.6, 48, 25, 48, 17.6);
+  ctx.bezierCurveTo(48, 9.5, 42, 3.2, 34.6, 3.2);
   ctx.closePath();
   ctx.fill();
   ctx.restore();
@@ -289,7 +282,7 @@ async function generatePrintImage({ handle, comment, likes = 0, avatar }) {
 
   // ---- Red filled heart + like count on the right --------------------------
   const heartCX = W - margin - round(likeColW / 2);
-  const heartCY = topY + round(heartSize * 0.55);
+  const heartCY = topY + round(F * 0.4); // vertically centered on the handle line
   drawHeart(ctx, heartCX, heartCY, heartSize, '#ed4956');
   if (countText) {
     ctx.font = regFont(metaF);
