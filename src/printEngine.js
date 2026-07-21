@@ -217,43 +217,28 @@ async function generatePrintImage({ handle, comment, likes = 0, avatar }) {
   const likeColW = Math.max(heartSize, countW) + round(F * 0.3);
   const textW = W - margin - likeColW - textX;
 
-  // ---- Wrap the handle (char-level) and the comment ------------------------
-  ctx.font = boldFont(F);
-  const handleLines = [];
-  {
-    let cur = '';
-    for (const ch of String(handle)) {
-      if (ctx.measureText(cur + ch).width > textW && cur) { handleLines.push(cur); cur = ch; }
-      else cur += ch;
-    }
-    handleLines.push(cur);
-  }
-  // The grey time always sits to the right of the handle's last characters —
-  // never on a line of its own. If it can't fit beside the last handle line,
-  // spill trailing handle characters down until the tail + time fit together.
+  // ---- Handle: always ONE line, time to its right --------------------------
+  // The handle never wraps. If "@handle 2h" is wider than the text column,
+  // shrink the handle's font just enough to fit (floor at half the base size).
   const timeGap = round(F * 0.36);
   ctx.font = regFont(metaF);
   const timeW = ctx.measureText('2h').width;
   ctx.font = boldFont(F);
-  if (ctx.measureText(handleLines[handleLines.length - 1]).width + timeGap + timeW > textW) {
-    let last = handleLines[handleLines.length - 1];
-    let spill = '';
-    do {
-      spill = last.slice(-1) + spill;
-      last = last.slice(0, -1);
-    } while (last && ctx.measureText(spill).width + timeGap + timeW > textW);
-    if (last) { handleLines[handleLines.length - 1] = last; handleLines.push(spill); }
-    else { handleLines[handleLines.length - 1] = spill; }
-  }
-  const handleLineCount = handleLines.length;
-  const lastHandleW = ctx.measureText(handleLines[handleLineCount - 1]).width;
-  const rowsAboveComment = handleLineCount;
+  const handleText = String(handle);
+  const fullHandleW = ctx.measureText(handleText).width;
+  const availW = textW - timeGap - timeW;
+  const handleF = fullHandleW > availW
+    ? Math.max(round(F * 0.5), Math.floor((F * availW) / fullHandleW))
+    : F;
+  ctx.font = boldFont(handleF);
+  const handleW = ctx.measureText(handleText).width;
+  const rowsAboveComment = 1;
 
   ctx.font = regFont(F);
   const commentLines = wrapText(ctx, comment, textW);
   const numComment = Math.max(1, commentLines.length);
 
-  // Rows: handle line(s) (+ wrapped time) + comment line(s) + one meta line.
+  // Rows: one handle line + comment line(s) + one meta line.
   const metaLineH = round(metaF * 1.5);
   const totalTextH = lineH * (rowsAboveComment + numComment) + metaLineH;
   const blockH = Math.max(avatarD, totalTextH);
@@ -278,13 +263,13 @@ async function generatePrintImage({ handle, comment, likes = 0, avatar }) {
   ctx.strokeStyle = 'rgba(255,255,255,0.22)';
   ctx.stroke();
 
-  // ---- Handle line(s), bold white; grey time right of the last one ---------
-  ctx.font = boldFont(F);
+  // ---- Handle (one line, bold white); grey time to its right ---------------
+  ctx.font = boldFont(handleF);
   ctx.fillStyle = '#ffffff';
-  handleLines.forEach((ln, i) => ctx.fillText(ln, textX, topY + i * lineH));
+  ctx.fillText(handleText, textX, topY + (F - handleF)); // bottom-align with the row
   ctx.font = regFont(metaF);
   ctx.fillStyle = '#a8a8a8';
-  ctx.fillText('2h', textX + lastHandleW + timeGap, topY + (handleLineCount - 1) * lineH + (F - metaF));
+  ctx.fillText('2h', textX + handleW + timeGap, topY + (F - metaF));
   let y = topY + rowsAboveComment * lineH;
 
   // ---- Comment (white) ------------------------------------------------------

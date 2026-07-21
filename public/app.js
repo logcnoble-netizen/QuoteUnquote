@@ -63,6 +63,7 @@
     wireModals();
     initStripe();
     renderCart();
+    fitMockHandle();
     await loadProduct();
   }
 
@@ -131,10 +132,8 @@
       if (v !== handle.value) handle.value = v;
       updateCounter('handleCount', v.length, CONFIG.handleMax);
       const clean = v.replace(/^@+/, '');
-      const full = clean ? '@' + clean : 'yourhandle';
-      // Split off the last char into the nowrap glue group next to "2h".
-      $('mockHandle').textContent = full.slice(0, -1);
-      $('mockHandleTail').textContent = full.slice(-1);
+      $('mockHandle').textContent = clean ? '@' + clean : 'yourhandle';
+      fitMockHandle();
       updateMockAvatar();
       validateBuilder();
     });
@@ -196,6 +195,21 @@
     else hint.textContent = 'Looks good — add it to your cart.';
     return ok;
   }
+
+  // Shrink the handle line's font until "@handle 2h" fits on one line
+  // (mirrors the print engine, which scales the handle instead of wrapping).
+  function fitMockHandle() {
+    const line = document.querySelector('.ig-line');
+    if (!line) return;
+    line.style.fontSize = ''; // reset to the CSS cqw base before measuring
+    let fs = parseFloat(getComputedStyle(line).fontSize);
+    let guard = 0;
+    while (line.scrollWidth > line.clientWidth + 0.5 && fs > 4 && guard++ < 40) {
+      fs *= 0.94;
+      line.style.fontSize = fs.toFixed(2) + 'px';
+    }
+  }
+  window.addEventListener('resize', fitMockHandle);
 
   function updateMockAvatar() {
     const a = $('mockAvatar');
