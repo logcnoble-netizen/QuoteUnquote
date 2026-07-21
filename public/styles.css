@@ -206,7 +206,9 @@ a { color: inherit; }
 .ig-meta-row { display: flex; gap: 3.4cqw; margin-top: 1cqw; }
 .ig-translate { font-size: 2.25cqw; color: rgba(255, 255, 255, 0.6); }
 .ig-reply { font-size: 2.25cqw; color: rgba(255, 255, 255, 0.6); font-weight: 600; }
-.ig-like { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 0.6cqw; padding-top: 0.3cqw; min-width: 4.5cqw; }
+/* padding-top drops the heart from the handle line to the first comment line,
+   matching Instagram's alignment. */
+.ig-like { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 0.6cqw; padding-top: 3.8cqw; min-width: 4.5cqw; }
 .ig-heart { color: var(--like); line-height: 0; }
 .ig-heart svg { width: 3.4cqw; height: 3.4cqw; display: block; }
 .ig-likecount { font-size: 2.1cqw; color: rgba(255, 255, 255, 0.62); font-weight: 500; }

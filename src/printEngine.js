@@ -282,7 +282,8 @@ async function generatePrintImage({ handle, comment, likes = 0, avatar }) {
 
   // ---- Red filled heart + like count on the right --------------------------
   const heartCX = W - margin - round(likeColW / 2);
-  const heartCY = topY + round(F * 0.4); // vertically centered on the handle line
+  // Aligned with the first COMMENT line (like Instagram), not the handle line.
+  const heartCY = topY + handleLineCount * lineH + round(F * 0.4);
   drawHeart(ctx, heartCX, heartCY, heartSize, '#ed4956');
   if (countText) {
     ctx.font = regFont(metaF);
