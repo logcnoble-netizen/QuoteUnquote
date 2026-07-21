@@ -30,12 +30,13 @@
   // ---- state ----------------------------------------------------------------
   const CART_KEY = 'qu_cart_v1';
   const AVATAR_EXPORT = 448; // px, square -> circular PNG
-  let CONFIG = { handleMax: 30, commentMax: 150, sizes: ['S', 'M', 'L', 'XL', '2XL', '3XL'], shipping: { FLAT_CENTS: 600, FREE_THRESHOLD_CENTS: 9000 }, paymentsEnabled: false, currency: 'usd', country: 'US', brand: 'QuoteUnquote', stripePublishableKey: '' };
+  let CONFIG = { handleMax: 15, commentMax: 150, timeMax: 8, timeDefault: '2h', sizes: ['S', 'M', 'L', 'XL', '2XL', '3XL'], colors: ['Black', 'White'], shipping: { FLAT_CENTS: 600, FREE_THRESHOLD_CENTS: 9000 }, paymentsEnabled: false, currency: 'usd', country: 'US', brand: 'QuoteUnquote', stripePublishableKey: '' };
   let PRODUCT = { id: 'custom-comment', price: 3799 };
   let cart = loadCart();
 
   // builder
   let selectedSize = null;
+  let selectedColor = 'Black';
   let avatarDataUrl = null;
 
   // cropper
@@ -57,6 +58,7 @@
     const y = $('year'); if (y) y.textContent = String(new Date().getFullYear());
     await loadConfig();
     buildSizeSelector();
+    buildColorSelector();
     wireBuilder();
     wireAvatar();
     wireCart();
@@ -77,6 +79,7 @@
     } catch (e) { /* keep defaults */ }
     const hi = $('handleInput'); if (hi) hi.maxLength = CONFIG.handleMax;
     const ci = $('commentInput'); if (ci) ci.maxLength = CONFIG.commentMax;
+    const ti = $('timeInput'); if (ti) ti.maxLength = CONFIG.timeMax || 8;
     updateCounter('handleCount', 0, CONFIG.handleMax);
     updateCounter('commentCount', 0, CONFIG.commentMax);
   }
@@ -115,6 +118,35 @@
     validateBuilder();
   }
 
+  function buildColorSelector() {
+    const wrap = $('colorSelector');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    (CONFIG.colors || ['Black']).forEach((c) => {
+      wrap.appendChild(el('button', {
+        type: 'button', class: 'size-btn', 'data-color': c, 'aria-pressed': String(c === selectedColor),
+        onclick: () => selectColor(c),
+      }, c));
+    });
+    applyMockColor();
+  }
+
+  function selectColor(c) {
+    selectedColor = c;
+    document.querySelectorAll('#colorSelector .size-btn').forEach((b) => {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-color') === c));
+    });
+    applyMockColor();
+  }
+
+  /** Swap the tee mockup between the dark (Black) and light (White) looks. */
+  function applyMockColor() {
+    const stage = document.querySelector('.stage');
+    if (!stage) return;
+    stage.classList.toggle('tee-white', selectedColor === 'White');
+    stage.classList.toggle('tee-dark', selectedColor !== 'White');
+  }
+
   function updateCounter(id, len, max) {
     const c = $(id);
     if (!c) return;
@@ -149,12 +181,23 @@
     const likesEl = $('likesInput');
     if (likesEl) likesEl.addEventListener('input', updateMockLikes);
 
+    const timeEl = $('timeInput');
+    if (timeEl) timeEl.addEventListener('input', () => {
+      $('mockTime').textContent = timeValue();
+      fitMockHandle(); // a longer time string changes what fits on the handle line
+    });
+
     if (waiver) waiver.addEventListener('change', validateBuilder);
     $('addCustomBtn').addEventListener('click', addCustomToCart);
   }
 
   function likesValue() {
     return Math.max(0, Math.min(100000000, Math.floor(Number(($('likesInput') || {}).value) || 0)));
+  }
+
+  function timeValue() {
+    const raw = (($('timeInput') || {}).value || '').replace(/\s+/g, ' ').trim();
+    return raw.slice(0, CONFIG.timeMax || 8) || (CONFIG.timeDefault || '2h');
   }
 
   function formatLikeCount(n) {
@@ -179,6 +222,7 @@
       handle: raw ? '@' + raw : '',
       comment: ($('commentInput').value || '').trim(),
       likes: likesValue(),
+      time: timeValue(),
       waiver: $('waiverCheck').checked,
     };
   }
@@ -229,8 +273,8 @@
     if (!validateBuilder()) return;
     const v = builderValues();
     cart.push({
-      uid: uid(), id: PRODUCT.id, title: 'Custom Comment Tee', size: selectedSize, qty: 1,
-      unitPrice: PRODUCT.price, custom: { handle: v.handle, comment: v.comment, likes: v.likes }, avatarDataUrl,
+      uid: uid(), id: PRODUCT.id, title: 'Custom Comment Tee', size: selectedSize, color: selectedColor, qty: 1,
+      unitPrice: PRODUCT.price, custom: { handle: v.handle, comment: v.comment, likes: v.likes, time: v.time }, avatarDataUrl,
     });
     if (!saveCart()) { toast('Cart is full (browser storage limit). Remove an item or check out.', true); cart.pop(); return; }
     resetPayment();
@@ -410,7 +454,7 @@
 
       const info = el('div', {},
         el('h4', { text: it.title }),
-        el('div', { class: 'mono', style: 'font-size:12px;color:var(--text-faint)', text: 'Size ' + it.size + ' · Print on demand' })
+        el('div', { class: 'mono', style: 'font-size:12px;color:var(--text-faint)', text: 'Size ' + it.size + ' · ' + (it.color || 'Black') + ' · Print on demand' })
       );
       if (it.custom) {
         info.appendChild(el('div', { class: 'li-custom' },
@@ -478,7 +522,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          items: cart.map((it) => ({ id: it.id, size: it.size, qty: it.qty, custom: it.custom, avatarDataUrl: it.avatarDataUrl })),
+          items: cart.map((it) => ({ id: it.id, size: it.size, color: it.color || 'Black', qty: it.qty, custom: it.custom, avatarDataUrl: it.avatarDataUrl })),
           waiverAccepted: true,
           email: ($('payEmail') && $('payEmail').value) || undefined,
         }),

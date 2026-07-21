@@ -121,8 +121,11 @@ app.get('/api/config', (req, res) => {
     currency: cfg.CURRENCY,
     country: cfg.COUNTRY,
     sizes: cfg.SIZES,
+    colors: cfg.COLORS,
     handleMax: cfg.HANDLE_MAX,
     commentMax: cfg.COMMENT_MAX,
+    timeMax: cfg.TIME_MAX,
+    timeDefault: cfg.TIME_DEFAULT,
     shipping: cfg.SHIPPING,
     paymentsEnabled: !!stripe,
     stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY || '',
@@ -154,6 +157,7 @@ app.post('/api/checkout', async (req, res) => {
       id: it.id,
       title: it.title,
       size: it.size,
+      color: it.color,
       qty: it.qty,
       unitPrice: it.unitPrice,
       currency: it.currency,
@@ -293,7 +297,9 @@ app.get('/api/admin/pending', adminAuth, async (req, res) => {
     lines: (o.items || []).map((it, idx) => ({
       handle: it.custom.handle,
       comment: it.custom.comment,
+      time: (it.custom && it.custom.time) || '2h',
       size: it.size,
+      color: it.color || 'Black',
       qty: it.qty,
       avatarUrl: `/api/admin/avatar/${o.id}/${idx}?token=${token}`,
       printUrl: `/api/admin/print/${o.id}/${idx}?token=${token}`,
@@ -455,6 +461,8 @@ async function fulfillPodItem(order, item, idx, shipping) {
     handle: item.custom.handle,
     comment: item.custom.comment,
     likes: item.custom.likes || 0,
+    time: item.custom.time || cfg.TIME_DEFAULT,
+    color: item.color || 'Black',
     avatar: item.avatarPath, // validatePrintFile runs inside; throws err.quarantine on bad image
   });
 
@@ -464,12 +472,15 @@ async function fulfillPodItem(order, item, idx, shipping) {
   fs.writeFileSync(path.join(PRINTS_DIR, `${order.id}-${idx}.png`), png.buffer);
   const imageUrl = `${PUBLIC_URL}/files/print/${order.id}/${idx}`;
 
-  const variantId = product && product.variants ? product.variants[item.size] : undefined;
-  if (!variantId) throw new Error(`No Printify variant id mapped for size ${item.size}.`);
+  // Variants are keyed by colorway, then size ({ Black: {S: id, ...}, White: {...} }).
+  const color = item.color || 'Black';
+  const colorVariants = product && product.variants ? product.variants[color] : undefined;
+  const variantId = colorVariants ? colorVariants[item.size] : undefined;
+  if (!variantId) throw new Error(`No Printify variant id mapped for ${color} / ${item.size}.`);
 
   const body = printify.buildLineItemOrder({
     externalId: `${order.id}:${idx}`,
-    label: `${cfg.BRAND} ${item.custom.handle}`,
+    label: `${cfg.BRAND} ${item.custom.handle} (${color})`,
     variantId,
     blueprintId: product.blueprintId,
     printProviderId: product.printProviderId,

@@ -104,9 +104,9 @@
         imgs.querySelectorAll('img').forEach((im) => { im.addEventListener('error', () => { im.style.display = 'none'; }); });
 
         const details = el('div', { class: 'admin-details' },
-          el('div', { style: 'font-weight:700;font-size:15px', text: ln.handle }),
+          el('div', { style: 'font-weight:700;font-size:15px', text: ln.handle + '  ·  ' + (ln.time || '2h') }),
           el('div', { style: 'font-size:14px;color:var(--text-dim);margin:4px 0 10px', text: ln.comment }),
-          el('div', { class: 'mono', style: 'font-size:12px;color:var(--text-faint)', text: 'Size ' + ln.size + ' × ' + ln.qty })
+          el('div', { class: 'mono', style: 'font-size:12px;color:var(--text-faint)', text: 'Size ' + ln.size + ' · ' + (ln.color || 'Black') + ' × ' + ln.qty })
         );
         card.appendChild(el('div', { class: 'admin-line' }, imgs, details));
       });

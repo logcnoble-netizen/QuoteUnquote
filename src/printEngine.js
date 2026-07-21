@@ -167,15 +167,18 @@ async function validatePrintFile(avatar) {
 
 /**
  * Render the Instagram-style comment (with circular avatar) to a transparent
- * PNG buffer. White text on transparent — the blank is black, DTG lays white ink.
+ * PNG buffer. Ink color follows the blank: white ink on Black shirts (IG dark
+ * mode), near-black ink on White shirts (IG light mode).
  *
  * @param {object} opts
  * @param {string} opts.handle   sanitized "@handle"
  * @param {string} opts.comment  sanitized comment body
- * @param {number} [opts.likes]  like count shown in the meta row
+ * @param {number} [opts.likes]  like count shown under the heart
+ * @param {string} [opts.time]   "time since posted" string, e.g. "2h", "1 week"
+ * @param {string} [opts.color]  shirt colorway: "Black" (default) or "White"
  * @param {string|Buffer} opts.avatar  data URL / path / buffer of the cropped avatar
  */
-async function generatePrintImage({ handle, comment, likes = 0, avatar }) {
+async function generatePrintImage({ handle, comment, likes = 0, time = '2h', color = 'Black', avatar }) {
   if (!canvasLib) throw unavailable();
 
   const v = await validatePrintFile(avatar);
@@ -195,14 +198,23 @@ async function generatePrintImage({ handle, comment, likes = 0, avatar }) {
   ctx.textBaseline = 'top';
   ctx.antialias = 'subpixel';
 
-  // ---- Metrics --------------------------------------------------------------
+  // ---- Ink theme per blank --------------------------------------------------
+  // Black tee = IG dark mode; White tee = IG light mode.
+  const light = String(color).toLowerCase() === 'white';
+  const ink = light
+    ? { text: '#262626', meta: '#737373', count: '#737373', ring: 'rgba(0,0,0,0.15)', heart: '#ed4956' }
+    : { text: '#ffffff', meta: '#a8a8a8', count: '#c8c8c8', ring: 'rgba(255,255,255,0.22)', heart: '#ed4956' };
+
+  // ---- Metrics (ratios calibrated to a real IG comment @ 14px base) --------
   const margin = round(W * 0.085);
-  const F = round(W * 0.05); // base text size (handle + comment)
-  const metaF = round(F * 0.8); // time, Reply, like count
-  const lineH = round(F * 1.4);
-  const avatarD = round(F * 2.6); // profile pic diameter
+  const F = round(W * 0.05);       // base text size (handle + comment) — IG 14px
+  const timeF = round(F * 0.95);   // time next to the handle — IG renders ~username size
+  const replyF = round(F * 0.85);  // "See translation" / "Reply" — IG 12px
+  const countF = round(F * 0.8);   // like count under the heart — IG 11px
+  const lineH = round(F * 1.35);
+  const avatarD = round(F * 2.3);  // profile pic — IG 32px vs 14px font
   const avatarR = round(avatarD / 2);
-  const gap = round(F * 0.72); // avatar -> text
+  const gap = round(F * 0.85);     // avatar -> text — IG 12px
   const textX = margin + avatarD + gap;
 
   const boldFont = (px) => `bold ${px}px ${FONT_FAMILY}`;
@@ -212,17 +224,18 @@ async function generatePrintImage({ handle, comment, likes = 0, avatar }) {
   // Instagram's heart is roughly the same size as the comment text, not bigger.
   const heartSize = round(F * 0.95);
   const countText = Number(likes) > 0 ? formatLikeCount(likes) : '';
-  ctx.font = regFont(metaF);
+  ctx.font = regFont(countF);
   const countW = countText ? ctx.measureText(countText).width : 0;
   const likeColW = Math.max(heartSize, countW) + round(F * 0.3);
   const textW = W - margin - likeColW - textX;
 
   // ---- Handle: always ONE line, time to its right --------------------------
-  // The handle never wraps. If "@handle 2h" is wider than the text column,
+  // The handle never wraps. If "@handle <time>" is wider than the text column,
   // shrink the handle's font just enough to fit (floor at half the base size).
+  const timeText = String(time || '2h');
   const timeGap = round(F * 0.36);
-  ctx.font = regFont(metaF);
-  const timeW = ctx.measureText('2h').width;
+  ctx.font = regFont(timeF);
+  const timeW = ctx.measureText(timeText).width;
   ctx.font = boldFont(F);
   const handleText = String(handle);
   const fullHandleW = ctx.measureText(handleText).width;
@@ -239,7 +252,7 @@ async function generatePrintImage({ handle, comment, likes = 0, avatar }) {
   const numComment = Math.max(1, commentLines.length);
 
   // Rows: one handle line + comment line(s) + one meta line.
-  const metaLineH = round(metaF * 1.5);
+  const metaLineH = round(replyF * 1.5);
   const totalTextH = lineH * (rowsAboveComment + numComment) + metaLineH;
   const blockH = Math.max(avatarD, totalTextH);
   const topY = round(H * 0.28 - blockH / 2); // slightly higher on the chest
@@ -260,26 +273,26 @@ async function generatePrintImage({ handle, comment, likes = 0, avatar }) {
   ctx.beginPath();
   ctx.arc(avatarCX, avatarCY, avatarR, 0, Math.PI * 2);
   ctx.lineWidth = Math.max(2, round(W * 0.0014));
-  ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+  ctx.strokeStyle = ink.ring;
   ctx.stroke();
 
-  // ---- Handle (one line, bold white); grey time to its right ---------------
+  // ---- Handle (one line, bold); grey time to its right ---------------------
   ctx.font = boldFont(handleF);
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = ink.text;
   ctx.fillText(handleText, textX, topY + (F - handleF)); // bottom-align with the row
-  ctx.font = regFont(metaF);
-  ctx.fillStyle = '#a8a8a8';
-  ctx.fillText('2h', textX + handleW + timeGap, topY + (F - metaF));
+  ctx.font = regFont(timeF);
+  ctx.fillStyle = ink.meta;
+  ctx.fillText(timeText, textX + handleW + timeGap, topY + (F - timeF));
   let y = topY + rowsAboveComment * lineH;
 
-  // ---- Comment (white) ------------------------------------------------------
+  // ---- Comment --------------------------------------------------------------
   ctx.font = regFont(F);
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = ink.text;
   for (const ln of commentLines) { ctx.fillText(ln, textX, y); y += lineH; }
 
   // ---- Meta: "See translation   Reply" on one line (grey) ------------------
-  ctx.font = regFont(metaF);
-  ctx.fillStyle = '#a8a8a8';
+  ctx.font = regFont(replyF);
+  ctx.fillStyle = ink.meta;
   ctx.fillText('See translation', textX, y);
   const seeW = ctx.measureText('See translation').width;
   ctx.fillText('Reply', textX + seeW + round(F * 0.7), y);
@@ -288,10 +301,10 @@ async function generatePrintImage({ handle, comment, likes = 0, avatar }) {
   const heartCX = W - margin - round(likeColW / 2);
   // Aligned with the first COMMENT line (like Instagram), not the handle line.
   const heartCY = topY + rowsAboveComment * lineH + round(F * 0.4);
-  drawHeart(ctx, heartCX, heartCY, heartSize, '#ed4956');
+  drawHeart(ctx, heartCX, heartCY, heartSize, ink.heart);
   if (countText) {
-    ctx.font = regFont(metaF);
-    ctx.fillStyle = '#c8c8c8';
+    ctx.font = regFont(countF);
+    ctx.fillStyle = ink.count;
     ctx.textAlign = 'center';
     ctx.fillText(countText, heartCX, heartCY + round(heartSize * 0.55) + round(F * 0.12));
     ctx.textAlign = 'left';

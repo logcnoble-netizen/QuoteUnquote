@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0a0a0b" />
-  <meta name="description" content="QuoteUnquote — turn any Instagram comment into a custom 7.5oz Shaka Wear tee. Upload your avatar, write your comment, printed on demand." />
+  <meta name="description" content="QuoteUnquote — turn any Instagram comment into a custom 7.5oz Shaka Wear tee in Black or White. Upload your avatar, write your comment, printed on demand." />
   <title>QuoteUnquote — Custom Comment Tees</title>
 
   <meta property="og:type" content="website" />
@@ -54,6 +54,7 @@
       </div>
       <div class="tickers">
         <span class="chip">7.5oz Heavyweight</span>
+        <span class="chip">Black &amp; White</span>
         <span class="chip">300 DPI Print</span>
         <span class="chip">Made On Demand</span>
         <span class="chip">Ships From The US</span>
@@ -84,6 +85,11 @@
                   <stop offset="0.5" stop-color="#202024" />
                   <stop offset="1" stop-color="#141417" />
                 </linearGradient>
+                <linearGradient id="teeGradWhite" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#ffffff" />
+                  <stop offset="0.5" stop-color="#f2f2f4" />
+                  <stop offset="1" stop-color="#dddde1" />
+                </linearGradient>
               </defs>
               <path class="tee-body" d="M198,74 L150,84 L74,116 L66,168 L120,150 L120,424 Q120,434 130,434 L330,434 Q340,434 340,424 L340,150 L394,168 L386,116 L310,84 L262,74 Q230,104 198,74 Z" />
               <path class="tee-seam" d="M198,80 Q230,108 262,80" />
@@ -99,7 +105,7 @@
               <div class="ig-avatar" id="mockAvatar">U</div>
               <div class="ig-body">
                 <!-- Single line always: app.js shrinks the font so handle + 2h fit. -->
-                <div class="ig-line"><span class="ig-handle" id="mockHandle">yourhandle</span><span class="ig-time">2h</span></div>
+                <div class="ig-line"><span class="ig-handle" id="mockHandle">yourhandle</span><span class="ig-time" id="mockTime">2h</span></div>
                 <div class="ig-text" id="mockText">your comment goes here</div>
                 <div class="ig-meta-row"><span class="ig-translate">See translation</span><span class="ig-reply">Reply</span></div>
               </div>
@@ -133,9 +139,9 @@
           <div class="field">
             <div class="label">
               <label for="handleInput">Handle</label>
-              <span class="counter" id="handleCount">0/30</span>
+              <span class="counter" id="handleCount">0/15</span>
             </div>
-            <input class="input" id="handleInput" type="text" inputmode="text" maxlength="30" placeholder="@yourhandle" autocomplete="off" />
+            <input class="input" id="handleInput" type="text" inputmode="text" maxlength="15" placeholder="@yourhandle" autocomplete="off" />
           </div>
 
           <div class="field">
@@ -152,6 +158,21 @@
               <span class="counter">Optional — shown in the comment</span>
             </div>
             <input class="input" id="likesInput" type="number" min="0" max="100000000" step="1" inputmode="numeric" placeholder="e.g. 1204" autocomplete="off" />
+          </div>
+
+          <div class="field">
+            <div class="label">
+              <label for="timeInput">Posted</label>
+              <span class="counter">e.g. 2h, 4 days, 1 week</span>
+            </div>
+            <input class="input" id="timeInput" type="text" maxlength="8" placeholder="2h" autocomplete="off" />
+          </div>
+
+          <div class="field">
+            <div class="label">
+              <span>Colorway</span>
+            </div>
+            <div class="sizes" id="colorSelector" role="group" aria-label="Select a shirt color"></div>
           </div>
 
           <div class="field">

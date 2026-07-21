@@ -62,7 +62,7 @@ function getPublicProduct() {
   return {
     id: p.id,
     title: p.title,
-    color: p.color,
+    colors: p.colors || ['Black'],
     blank: p.blank,
     price: p.price,
     currency: p.currency,

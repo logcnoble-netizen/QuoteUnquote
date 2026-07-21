@@ -17,10 +17,16 @@ module.exports = {
   BRAND: 'QuoteUnquote',
 
   // Hard input limits (must match public/app.js + index.html maxlength attrs).
-  HANDLE_MAX: 30,
+  // HANDLE_MAX counts typed characters WITHOUT the "@" we prepend; 15 + "@"
+  // renders full-size on one line in the print's text column (no shrinking).
+  HANDLE_MAX: 15,
   COMMENT_MAX: 150,
+  // "Time since posted" string, e.g. "2h", "1 week", "36 min".
+  TIME_MAX: 8,
+  TIME_DEFAULT: '2h',
 
   SIZES: ['S', 'M', 'L', 'XL', '2XL', '3XL'],
+  COLORS: ['Black', 'White'],
   MAX_QTY_PER_LINE: 10,
   CURRENCY: 'usd',
   COUNTRY: 'US',

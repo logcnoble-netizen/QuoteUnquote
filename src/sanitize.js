@@ -7,7 +7,7 @@
  * make validateCheckout return ok:false, which the route surfaces as 400.
  */
 
-const { HANDLE_MAX, COMMENT_MAX, SIZES, MAX_QTY_PER_LINE, AVATAR } = require('./config');
+const { HANDLE_MAX, COMMENT_MAX, TIME_MAX, TIME_DEFAULT, SIZES, COLORS, MAX_QTY_PER_LINE, AVATAR } = require('./config');
 
 // ASCII control chars (0x00-0x1F, 0x7F), built from escapes so no literal
 // control bytes live in this source file.
@@ -88,16 +88,29 @@ function validateCheckout(body, catalog) {
     const size = String(raw.size || '').toUpperCase();
     if (!SIZES.includes(size)) { errors.push(`Line ${n}: invalid size "${raw.size}".`); return; }
 
+    // Colorway. Absent defaults to Black (back-compat with old carts);
+    // a present-but-unknown value is rejected.
+    let color = 'Black';
+    if (raw.color != null) {
+      const c = sanitizeText(raw.color, 20);
+      const match = COLORS.find((x) => x.toLowerCase() === c.toLowerCase());
+      if (!match) { errors.push(`Line ${n}: invalid color "${raw.color}".`); return; }
+      color = match;
+    }
+
     let qty = Math.floor(Number(raw.qty));
     if (!Number.isFinite(qty) || qty < 1) qty = 1;
     if (qty > MAX_QTY_PER_LINE) qty = MAX_QTY_PER_LINE;
 
-    // Mandatory custom schema.
+    // Mandatory custom schema. Handle allows HANDLE_MAX typed chars + the "@".
     const custom = isPlainObject(raw.custom) ? raw.custom : {};
-    const handle = sanitizeText(custom.handle, HANDLE_MAX);
+    const handle = sanitizeText(custom.handle, HANDLE_MAX + 1);
     const comment = sanitizeText(custom.comment, COMMENT_MAX);
     if (!handle) errors.push(`Line ${n}: handle is required.`);
     if (!comment) errors.push(`Line ${n}: comment is required.`);
+
+    // "Time since posted" string; empty falls back to the classic "2h".
+    const time = sanitizeText(custom.time, TIME_MAX) || TIME_DEFAULT;
 
     const avatar = validateAvatarDataUrl(raw.avatarDataUrl);
     if (!avatar.ok) errors.push(`Line ${n}: ${avatar.reason}.`);
@@ -111,11 +124,12 @@ function validateCheckout(body, catalog) {
       id: product.id,
       title: product.title,
       size,
+      color,
       qty,
       unitPrice: product.price,
       currency: product.currency,
       fulfillment_type: 'POD',
-      custom: { handle: normHandle.slice(0, HANDLE_MAX), comment, likes },
+      custom: { handle: normHandle.slice(0, HANDLE_MAX + 1), comment, likes, time },
       avatarDataUrl: avatar.ok ? raw.avatarDataUrl : null, // persisted to disk by the route
     });
   });
