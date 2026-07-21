@@ -31,7 +31,7 @@
   const CART_KEY = 'qu_cart_v1';
   const AVATAR_EXPORT = 448; // px, square -> circular PNG
   let CONFIG = { handleMax: 30, commentMax: 150, sizes: ['S', 'M', 'L', 'XL', '2XL', '3XL'], shipping: { FLAT_CENTS: 600, FREE_THRESHOLD_CENTS: 9000 }, paymentsEnabled: false, currency: 'usd', country: 'US', brand: 'QuoteUnquote', stripePublishableKey: '' };
-  let PRODUCT = { id: 'custom-comment', price: 4200 };
+  let PRODUCT = { id: 'custom-comment', price: 3799 };
   let cart = loadCart();
 
   // builder
