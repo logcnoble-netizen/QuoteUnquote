@@ -164,7 +164,7 @@
       if (v !== handle.value) handle.value = v;
       updateCounter('handleCount', v.length, CONFIG.handleMax);
       const clean = v.replace(/^@+/, '');
-      $('mockHandle').textContent = clean ? '@' + clean : 'yourhandle';
+      $('mockHandle').textContent = clean ? '@' + clean : '@yourhandle';
       fitMockHandle();
       updateMockAvatar();
       validateBuilder();
