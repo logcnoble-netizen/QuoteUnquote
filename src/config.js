@@ -17,9 +17,10 @@ module.exports = {
   BRAND: 'QuoteUnquote',
 
   // Hard input limits (must match public/app.js + index.html maxlength attrs).
-  // HANDLE_MAX counts typed characters WITHOUT the "@" we prepend; 15 + "@"
-  // renders full-size on one line in the print's text column (no shrinking).
-  HANDLE_MAX: 15,
+  // HANDLE_MAX counts typed characters WITHOUT the "@" we prepend. Handles
+  // longer than ~15 chars still render on ONE line — the print engine and
+  // preview auto-shrink the handle font to fit (floor at half the base size).
+  HANDLE_MAX: 30,
   COMMENT_MAX: 150,
   // "Time since posted" string, e.g. "2h", "1 week", "36 min".
   TIME_MAX: 8,

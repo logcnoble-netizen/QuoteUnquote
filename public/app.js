@@ -370,12 +370,10 @@
       p.style.backgroundPosition = 'center';
       if (letter) letter.style.display = 'none';
       $('avatarClearBtn').hidden = false;
-      $('avatarHint').textContent = 'Looks great — you can re-upload to change it.';
     } else {
       p.style.backgroundImage = '';
       if (letter) letter.style.display = '';
       $('avatarClearBtn').hidden = true;
-      $('avatarHint').textContent = 'Upload a photo — then scale & crop it into a circle.';
     }
   }
 
