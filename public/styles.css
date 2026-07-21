@@ -79,6 +79,7 @@ a { color: inherit; }
 .btn:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 14px 34px -12px rgba(0, 149, 246, 0.55); }
 .btn:active { transform: translateY(0); box-shadow: none; }
 .btn:disabled { opacity: .32; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn:focus-visible, .cart-btn:focus-visible, .size-btn:focus-visible, .x-btn:focus-visible, .link-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .btn-block { width: 100%; }
 .btn-ghost {
   background: transparent; color: var(--text);
@@ -124,6 +125,7 @@ a { color: inherit; }
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 .hero p { max-width: 560px; font-size: 17px; line-height: 1.55; margin: 0 0 26px; color: var(--text-dim); }
+.hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 30px; }
 .hero .tickers { display: flex; flex-wrap: wrap; gap: 10px; }
 .chip {
   font-family: var(--font-mono); font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em;
@@ -139,30 +141,22 @@ a { color: inherit; }
 .section-head h2 { font-size: clamp(28px, 5vw, 46px); font-weight: 800; text-transform: uppercase; letter-spacing: -0.025em; margin: 0; }
 .eyebrow { font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: .16em; color: var(--text-faint); margin-bottom: 10px; }
 
-/* ---- Catalog grid --------------------------------------------------------- */
-.catalog { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-@media (max-width: 860px) { .catalog { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 520px) { .catalog { grid-template-columns: 1fr; } }
-.card {
+/* ---- How-it-works steps ---------------------------------------------------- */
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+@media (max-width: 860px) { .steps { grid-template-columns: 1fr; } }
+.step {
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
-  box-shadow: var(--shadow), var(--hi); display: flex; flex-direction: column; overflow: hidden;
-  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+  box-shadow: var(--shadow-sm), var(--hi); padding: 24px;
+  transition: transform .22s ease, border-color .22s ease;
 }
-.card:hover { transform: translateY(-4px); border-color: var(--line-strong); box-shadow: 0 34px 70px -34px rgba(0, 0, 0, 0.95), var(--hi); }
-.card .thumb { aspect-ratio: 4/5; border-bottom: 1px solid var(--line); display: grid; place-items: center; position: relative; overflow: hidden; }
-.card .thumb .tag { position: absolute; top: 12px; left: 12px; }
-.card .meta { padding: 16px 18px; display: flex; flex-direction: column; gap: 9px; }
-.card .meta h3 { margin: 0; font-size: 16px; font-weight: 700; line-height: 1.25; letter-spacing: -0.01em; }
-.card .meta .row { display: flex; align-items: center; justify-content: space-between; margin-top: 2px; }
-.card .price { font-family: var(--font-mono); font-weight: 700; font-size: 15px; }
-
-/* Swatch placeholders (asset-free product blocks) */
-.swatch { width: 100%; height: 100%; display: grid; place-items: center; }
-.swatch-black { background: linear-gradient(160deg, #202024, #0e0e10); color: #e7e7ea; }
-.swatch-white { background: linear-gradient(160deg, #fdfdfd, #d9d9de); color: #26262b; }
-.swatch-bone  { background: linear-gradient(160deg, #eceae2, #cfccc0); color: #26262b; }
-.swatch-char  { background: linear-gradient(160deg, #34343a, #16161a); color: #e7e7ea; }
-.swatch .swatch-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; opacity: .55; }
+.step:hover { transform: translateY(-3px); border-color: var(--line-strong); }
+.step-num {
+  display: inline-block; font-family: var(--font-mono); font-weight: 700; font-size: 13px;
+  letter-spacing: .16em; margin-bottom: 12px;
+  background: var(--ig-grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.step h3 { margin: 0 0 8px; font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
+.step p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--text-dim); }
 
 /* ---- Builder module ------------------------------------------------------- */
 .builder { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 30px; align-items: start; }
@@ -180,7 +174,7 @@ a { color: inherit; }
   box-shadow: var(--shadow), var(--hi);
   padding: 16px; aspect-ratio: 1 / 1.02; display: grid; place-items: center;
 }
-.tee-wrap { position: relative; height: 100%; aspect-ratio: 460 / 500; max-width: 100%; margin: 0 auto; container-type: inline-size; }
+.tee-wrap { position: relative; height: 100%; aspect-ratio: 348 / 380; max-width: 100%; margin: 0 auto; container-type: inline-size; }
 .tee-svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 26px 44px rgba(0, 0, 0, 0.55)); }
 .tee-svg .tee-body { fill: url(#teeGrad); stroke: rgba(255, 255, 255, 0.09); stroke-width: 2; }
 .tee-svg .tee-seam { fill: none; stroke: rgba(255, 255, 255, 0.08); stroke-width: 2; }
@@ -189,29 +183,31 @@ a { color: inherit; }
 /* Sized in container-query units (cqw = 1% of the shirt width) so the comment
    keeps the same proportion to the tee at every screen size. */
 .ig-comment {
-  position: absolute; left: 50%; top: 34%; transform: translate(-50%, -50%);
-  width: 47%; display: flex; gap: 1.7cqw; align-items: flex-start;
+  position: absolute; left: 50%; top: 28%; transform: translate(-50%, -50%);
+  width: 49%; display: flex; gap: 1.8cqw; align-items: flex-start;
 }
 .tee-dark .ig-comment, .ig-comment { color: #fff; }
 .ig-avatar {
-  flex: 0 0 auto; width: 7cqw; height: 7cqw; border-radius: 50%; overflow: hidden;
+  flex: 0 0 auto; width: 7.3cqw; height: 7.3cqw; border-radius: 50%; overflow: hidden;
   background-color: #dbdbdb; color: #262626;
-  display: grid; place-items: center; font-weight: 700; font-size: 3cqw;
+  display: grid; place-items: center; font-weight: 700; font-size: 3.1cqw;
 }
 .ig-body { min-width: 0; flex: 1; }
-.ig-line { font-size: 2.65cqw; line-height: 1.28; letter-spacing: -0.01em; overflow-wrap: anywhere; }
+/* word-break is the fallback for browsers without overflow-wrap:anywhere, so a
+   long no-space handle can never run off the shirt. */
+.ig-line { font-size: 2.76cqw; line-height: 1.28; letter-spacing: -0.01em; overflow-wrap: anywhere; word-break: break-word; }
 .ig-handle { font-weight: 700; color: #fff; }
-.ig-time { color: rgba(255, 255, 255, 0.55); font-size: 2.3cqw; margin-left: 1.1cqw; }
-.ig-text { font-size: 2.65cqw; line-height: 1.34; color: #fff; margin-top: 0.4cqw; overflow-wrap: anywhere; }
-.ig-meta-row { display: flex; gap: 3.4cqw; margin-top: 1cqw; }
-.ig-translate { font-size: 2.25cqw; color: rgba(255, 255, 255, 0.6); }
-.ig-reply { font-size: 2.25cqw; color: rgba(255, 255, 255, 0.6); font-weight: 600; }
+.ig-time { color: rgba(255, 255, 255, 0.55); font-size: 2.4cqw; margin-left: 1.15cqw; }
+.ig-text { font-size: 2.76cqw; line-height: 1.34; color: #fff; margin-top: 0.4cqw; overflow-wrap: anywhere; word-break: break-word; }
+.ig-meta-row { display: flex; gap: 3.55cqw; margin-top: 1cqw; }
+.ig-translate { font-size: 2.35cqw; color: rgba(255, 255, 255, 0.6); }
+.ig-reply { font-size: 2.35cqw; color: rgba(255, 255, 255, 0.6); font-weight: 600; }
 /* padding-top drops the heart from the handle line to the first comment line,
    matching Instagram's alignment. */
-.ig-like { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 0.6cqw; padding-top: 3.8cqw; min-width: 4.5cqw; }
+.ig-like { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 0.63cqw; padding-top: 3.95cqw; min-width: 4.7cqw; }
 .ig-heart { color: var(--like); line-height: 0; }
-.ig-heart svg { width: 3.4cqw; height: 3.4cqw; display: block; }
-.ig-likecount { font-size: 2.1cqw; color: rgba(255, 255, 255, 0.62); font-weight: 500; }
+.ig-heart svg { width: 3.55cqw; height: 3.55cqw; display: block; }
+.ig-likecount { font-size: 2.2cqw; color: rgba(255, 255, 255, 0.62); font-weight: 500; }
 
 /* Builder form */
 .panel { border: 1px solid var(--line); background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow-sm), var(--hi); padding: 24px; }

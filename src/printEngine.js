@@ -229,13 +229,23 @@ async function generatePrintImage({ handle, comment, likes = 0, avatar }) {
   }
   const handleLineCount = handleLines.length;
 
+  // The grey time follows the last handle line; if that line is nearly full it
+  // wraps to its own line (like inline text on Instagram) instead of colliding
+  // with the like column.
+  const timeGap = round(F * 0.36);
+  const lastHandleW = ctx.measureText(handleLines[handleLineCount - 1]).width;
+  ctx.font = regFont(metaF);
+  const timeW = ctx.measureText('2h').width;
+  const timeOwnLine = lastHandleW + timeGap + timeW > textW;
+  const rowsAboveComment = handleLineCount + (timeOwnLine ? 1 : 0);
+
   ctx.font = regFont(F);
   const commentLines = wrapText(ctx, comment, textW);
   const numComment = Math.max(1, commentLines.length);
 
-  // Rows: handle line(s) + comment line(s) + one meta line (translation/reply).
+  // Rows: handle line(s) (+ wrapped time) + comment line(s) + one meta line.
   const metaLineH = round(metaF * 1.5);
-  const totalTextH = lineH * (handleLineCount + numComment) + metaLineH;
+  const totalTextH = lineH * (rowsAboveComment + numComment) + metaLineH;
   const blockH = Math.max(avatarD, totalTextH);
   const topY = round(H * 0.28 - blockH / 2); // slightly higher on the chest
 
@@ -258,15 +268,18 @@ async function generatePrintImage({ handle, comment, likes = 0, avatar }) {
   ctx.strokeStyle = 'rgba(255,255,255,0.22)';
   ctx.stroke();
 
-  // ---- Handle line(s), bold white; grey time after the last one ------------
+  // ---- Handle line(s), bold white; grey time after (or under) the last one --
   ctx.font = boldFont(F);
   ctx.fillStyle = '#ffffff';
   handleLines.forEach((ln, i) => ctx.fillText(ln, textX, topY + i * lineH));
-  const lastHandleW = ctx.measureText(handleLines[handleLineCount - 1]).width;
   ctx.font = regFont(metaF);
   ctx.fillStyle = '#a8a8a8';
-  ctx.fillText('2h', textX + lastHandleW + round(F * 0.36), topY + (handleLineCount - 1) * lineH + (F - metaF));
-  let y = topY + handleLineCount * lineH;
+  if (timeOwnLine) {
+    ctx.fillText('2h', textX, topY + handleLineCount * lineH + (F - metaF));
+  } else {
+    ctx.fillText('2h', textX + lastHandleW + timeGap, topY + (handleLineCount - 1) * lineH + (F - metaF));
+  }
+  let y = topY + rowsAboveComment * lineH;
 
   // ---- Comment (white) ------------------------------------------------------
   ctx.font = regFont(F);
@@ -283,7 +296,7 @@ async function generatePrintImage({ handle, comment, likes = 0, avatar }) {
   // ---- Red filled heart + like count on the right --------------------------
   const heartCX = W - margin - round(likeColW / 2);
   // Aligned with the first COMMENT line (like Instagram), not the handle line.
-  const heartCY = topY + handleLineCount * lineH + round(F * 0.4);
+  const heartCY = topY + rowsAboveComment * lineH + round(F * 0.4);
   drawHeart(ctx, heartCX, heartCY, heartSize, '#ed4956');
   if (countText) {
     ctx.font = regFont(metaF);

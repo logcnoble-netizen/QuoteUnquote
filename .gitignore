@@ -21,9 +21,10 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 
-# Editor
+# Editor / local tooling
 .vscode/
 .idea/
+.claude/
 
 # Optional bundled font binaries dropped in by ops (see assets/fonts/README)
 assets/fonts/*.ttf

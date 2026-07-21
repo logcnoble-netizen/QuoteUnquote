@@ -7,6 +7,14 @@
   <meta name="description" content="QuoteUnquote — turn any Instagram comment into a custom 7.5oz Shaka Wear tee. Upload your avatar, write your comment, printed on demand." />
   <title>QuoteUnquote — Custom Comment Tees</title>
 
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="QuoteUnquote" />
+  <meta property="og:title" content="QuoteUnquote — Custom Comment Tees" />
+  <meta property="og:description" content="Turn your best comments into wearable art. Your handle, avatar &amp; comment printed on a 7.5oz heavyweight tee, made on demand." />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="QuoteUnquote — Custom Comment Tees" />
+  <meta name="twitter:description" content="Turn your best comments into wearable art. Your handle, avatar &amp; comment printed on a 7.5oz heavyweight tee, made on demand." />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
@@ -18,7 +26,7 @@
   <script src="https://js.stripe.com/v3/"></script>
 
   <link rel="stylesheet" href="/styles.css" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32'/%3E%3Ctext x='16' y='25' font-family='monospace' font-size='24' fill='white' text-anchor='middle'%3E%E2%80%9D%3C/text%3E%3C/svg%3E" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23fa7e1e'/%3E%3Cstop offset='.5' stop-color='%23d62976'/%3E%3Cstop offset='1' stop-color='%234f5bd5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23g)'/%3E%3Ctext x='16' y='25' font-family='monospace' font-size='24' fill='white' text-anchor='middle'%3E%E2%80%9D%3C/text%3E%3C/svg%3E" />
 </head>
 <body>
   <!-- ===================== Header ===================== -->
@@ -40,6 +48,10 @@
     <div class="wrap">
       <h1>Quote<br />Unquote</h1>
       <p>Turn your best comments into wearable art. High-quality custom tees, personalized with your handle and avatar on a 7.5oz Shaka Wear blank.</p>
+      <div class="hero-cta">
+        <a class="btn" href="#builder">Customize Yours</a>
+        <a class="btn btn-ghost" href="/track">Track Order</a>
+      </div>
       <div class="tickers">
         <span class="chip">7.5oz Heavyweight</span>
         <span class="chip">300 DPI Print</span>
@@ -63,7 +75,9 @@
         <!-- Live mockup stage -->
         <div class="stage tee-dark">
           <div class="tee-wrap">
-            <svg class="tee-svg" viewBox="0 0 460 500" role="img" aria-label="Boxy heavyweight t-shirt with your custom comment">
+            <!-- viewBox tightly crops the shirt artwork (x 66-394, y 74-434 + margin)
+                 so the tee fills the stage instead of floating in dead space. -->
+            <svg class="tee-svg" viewBox="56 64 348 380" role="img" aria-label="Boxy heavyweight t-shirt with your custom comment">
               <defs>
                 <linearGradient id="teeGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0" stop-color="#2c2c33" />
@@ -159,6 +173,35 @@
 
           <button class="btn btn-block" id="addCustomBtn" disabled>Add Custom Tee — $42</button>
           <p class="pay-note" id="builderHint">Add a photo, handle &amp; comment, pick a size, and accept the waiver to continue.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== How it works ===================== -->
+  <section class="section" id="how">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">// How It Works</div>
+          <h2>Comment To Closet</h2>
+        </div>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">01</span>
+          <h3>Upload your avatar</h3>
+          <p>Add a profile photo and crop it into a circle — exactly how it shows up on your feed.</p>
+        </div>
+        <div class="step">
+          <span class="step-num">02</span>
+          <h3>Write the comment</h3>
+          <p>Your handle, your words, your like count. The live mockup shows exactly what gets printed.</p>
+        </div>
+        <div class="step">
+          <span class="step-num">03</span>
+          <h3>We print &amp; ship</h3>
+          <p>Rendered at 300 DPI and pressed onto a 7.5oz Shaka Wear heavyweight blank, made to order in the US.</p>
         </div>
       </div>
     </div>
