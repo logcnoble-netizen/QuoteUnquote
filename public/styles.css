@@ -183,7 +183,9 @@ a { color: inherit; }
 /* Sized in container-query units (cqw = 1% of the shirt width) so the comment
    keeps the same proportion to the tee at every screen size. */
 .ig-comment {
-  position: absolute; left: 50%; top: 28%; transform: translate(-50%, -50%);
+  /* Anchored by its TOP edge (translateX only) so longer comments grow
+     downward — the avatar/handle row never moves up the shirt. */
+  position: absolute; left: 50%; top: 22.8%; transform: translateX(-50%);
   width: 49%; display: flex; gap: 2.35cqw; align-items: flex-start;
 }
 .tee-dark .ig-comment, .ig-comment { color: #fff; }

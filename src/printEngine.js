@@ -251,11 +251,9 @@ async function generatePrintImage({ handle, comment, likes = 0, time = '2h', col
   const commentLines = wrapText(ctx, comment, textW);
   const numComment = Math.max(1, commentLines.length);
 
-  // Rows: one handle line + comment line(s) + one meta line.
-  const metaLineH = round(replyF * 1.5);
-  const totalTextH = lineH * (rowsAboveComment + numComment) + metaLineH;
-  const blockH = Math.max(avatarD, totalTextH);
-  const topY = round(H * 0.28 - blockH / 2); // slightly higher on the chest
+  // Fixed TOP anchor on the chest: extra comment lines grow downward, so the
+  // avatar/handle row sits at the same height no matter how long the comment is.
+  const topY = round(H * 0.195);
 
   // ---- Circular avatar ------------------------------------------------------
   const avatarCX = margin + avatarR;
