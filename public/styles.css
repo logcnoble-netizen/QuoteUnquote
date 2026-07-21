@@ -204,9 +204,10 @@ a { color: inherit; }
 .ig-reply { font-size: 2.35cqw; color: rgba(255, 255, 255, 0.6); font-weight: 600; }
 /* padding-top drops the heart from the handle line to the first comment line,
    matching Instagram's alignment. */
-.ig-like { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 0.63cqw; padding-top: 3.95cqw; min-width: 4.7cqw; }
+.ig-like { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 0.63cqw; padding-top: 4.4cqw; min-width: 4.2cqw; }
 .ig-heart { color: var(--like); line-height: 0; }
-.ig-heart svg { width: 3.55cqw; height: 3.55cqw; display: block; }
+/* IG's heart is ~the comment font size — noticeably smaller than the avatar. */
+.ig-heart svg { width: 2.6cqw; height: 2.6cqw; display: block; }
 .ig-likecount { font-size: 2.2cqw; color: rgba(255, 255, 255, 0.62); font-weight: 500; }
 
 /* Builder form */

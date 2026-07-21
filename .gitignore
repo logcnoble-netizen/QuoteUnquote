@@ -26,6 +26,5 @@ Thumbs.db
 .idea/
 .claude/
 
-# Optional bundled font binaries dropped in by ops (see assets/fonts/README)
-assets/fonts/*.ttf
-assets/fonts/*.otf
+# Print fonts (assets/fonts/Inter-*.ttf) are intentionally committed so Railway
+# renders prints in the same Inter the site preview shows (SIL OFL licensed).

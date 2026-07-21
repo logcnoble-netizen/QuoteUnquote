@@ -209,11 +209,12 @@ async function generatePrintImage({ handle, comment, likes = 0, avatar }) {
   const regFont = (px) => `${px}px ${FONT_FAMILY}`;
 
   // Right-hand like column: heart with the count directly below it (IG style).
-  const heartSize = round(F * 1.2);
+  // Instagram's heart is roughly the same size as the comment text, not bigger.
+  const heartSize = round(F * 0.95);
   const countText = Number(likes) > 0 ? formatLikeCount(likes) : '';
   ctx.font = regFont(metaF);
   const countW = countText ? ctx.measureText(countText).width : 0;
-  const likeColW = Math.max(heartSize, countW) + round(F * 0.5);
+  const likeColW = Math.max(heartSize, countW) + round(F * 0.3);
   const textW = W - margin - likeColW - textX;
 
   // ---- Wrap the handle (char-level) and the comment ------------------------
