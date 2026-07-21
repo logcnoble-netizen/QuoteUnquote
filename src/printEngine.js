@@ -228,17 +228,26 @@ async function generatePrintImage({ handle, comment, likes = 0, avatar }) {
     }
     handleLines.push(cur);
   }
-  const handleLineCount = handleLines.length;
-
-  // The grey time follows the last handle line; if that line is nearly full it
-  // wraps to its own line (like inline text on Instagram) instead of colliding
-  // with the like column.
+  // The grey time always sits to the right of the handle's last characters —
+  // never on a line of its own. If it can't fit beside the last handle line,
+  // spill trailing handle characters down until the tail + time fit together.
   const timeGap = round(F * 0.36);
-  const lastHandleW = ctx.measureText(handleLines[handleLineCount - 1]).width;
   ctx.font = regFont(metaF);
   const timeW = ctx.measureText('2h').width;
-  const timeOwnLine = lastHandleW + timeGap + timeW > textW;
-  const rowsAboveComment = handleLineCount + (timeOwnLine ? 1 : 0);
+  ctx.font = boldFont(F);
+  if (ctx.measureText(handleLines[handleLines.length - 1]).width + timeGap + timeW > textW) {
+    let last = handleLines[handleLines.length - 1];
+    let spill = '';
+    do {
+      spill = last.slice(-1) + spill;
+      last = last.slice(0, -1);
+    } while (last && ctx.measureText(spill).width + timeGap + timeW > textW);
+    if (last) { handleLines[handleLines.length - 1] = last; handleLines.push(spill); }
+    else { handleLines[handleLines.length - 1] = spill; }
+  }
+  const handleLineCount = handleLines.length;
+  const lastHandleW = ctx.measureText(handleLines[handleLineCount - 1]).width;
+  const rowsAboveComment = handleLineCount;
 
   ctx.font = regFont(F);
   const commentLines = wrapText(ctx, comment, textW);
@@ -269,17 +278,13 @@ async function generatePrintImage({ handle, comment, likes = 0, avatar }) {
   ctx.strokeStyle = 'rgba(255,255,255,0.22)';
   ctx.stroke();
 
-  // ---- Handle line(s), bold white; grey time after (or under) the last one --
+  // ---- Handle line(s), bold white; grey time right of the last one ---------
   ctx.font = boldFont(F);
   ctx.fillStyle = '#ffffff';
   handleLines.forEach((ln, i) => ctx.fillText(ln, textX, topY + i * lineH));
   ctx.font = regFont(metaF);
   ctx.fillStyle = '#a8a8a8';
-  if (timeOwnLine) {
-    ctx.fillText('2h', textX, topY + handleLineCount * lineH + (F - metaF));
-  } else {
-    ctx.fillText('2h', textX + lastHandleW + timeGap, topY + (handleLineCount - 1) * lineH + (F - metaF));
-  }
+  ctx.fillText('2h', textX + lastHandleW + timeGap, topY + (handleLineCount - 1) * lineH + (F - metaF));
   let y = topY + rowsAboveComment * lineH;
 
   // ---- Comment (white) ------------------------------------------------------

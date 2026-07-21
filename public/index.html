@@ -98,7 +98,9 @@
             <div class="ig-comment">
               <div class="ig-avatar" id="mockAvatar">U</div>
               <div class="ig-body">
-                <div class="ig-line"><span class="ig-handle" id="mockHandle">yourhandle</span><span class="ig-time">2h</span></div>
+                <!-- The last handle char + time are glued (nowrap) so "2h" can
+                     never wrap onto a line by itself. -->
+                <div class="ig-line"><span class="ig-handle" id="mockHandle">yourhandl</span><span class="ig-glue"><span class="ig-handle" id="mockHandleTail">e</span><span class="ig-time">2h</span></span></div>
                 <div class="ig-text" id="mockText">your comment goes here</div>
                 <div class="ig-meta-row"><span class="ig-translate">See translation</span><span class="ig-reply">Reply</span></div>
               </div>

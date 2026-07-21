@@ -197,6 +197,8 @@ a { color: inherit; }
    long no-space handle can never run off the shirt. */
 .ig-line { font-size: 2.76cqw; line-height: 1.28; letter-spacing: -0.01em; overflow-wrap: anywhere; word-break: break-word; }
 .ig-handle { font-weight: 700; color: #fff; }
+/* Glues the handle's last character to the time so "2h" never wraps alone. */
+.ig-glue { white-space: nowrap; }
 .ig-time { color: rgba(255, 255, 255, 0.55); font-size: 2.4cqw; margin-left: 1.15cqw; }
 .ig-text { font-size: 2.76cqw; line-height: 1.34; color: #fff; margin-top: 0.4cqw; overflow-wrap: anywhere; word-break: break-word; }
 .ig-meta-row { display: flex; gap: 3.55cqw; margin-top: 1cqw; }

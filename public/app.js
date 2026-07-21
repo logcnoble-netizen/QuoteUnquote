@@ -131,7 +131,10 @@
       if (v !== handle.value) handle.value = v;
       updateCounter('handleCount', v.length, CONFIG.handleMax);
       const clean = v.replace(/^@+/, '');
-      $('mockHandle').textContent = clean ? '@' + clean : 'yourhandle';
+      const full = clean ? '@' + clean : 'yourhandle';
+      // Split off the last char into the nowrap glue group next to "2h".
+      $('mockHandle').textContent = full.slice(0, -1);
+      $('mockHandleTail').textContent = full.slice(-1);
       updateMockAvatar();
       validateBuilder();
     });
