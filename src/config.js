@@ -35,9 +35,12 @@ module.exports = {
   // The single product. Priced server-side; the client never sets amounts.
   PRODUCT_ID: 'custom-comment',
 
+  // Shipping is free to the customer — Printify's fulfillment cost already
+  // bundles shipping, so the retail price ($34.99) carries it. FLAT_CENTS 0
+  // makes every order ship free regardless of the (now inert) threshold.
   SHIPPING: {
-    FLAT_CENTS: 600,
-    FREE_THRESHOLD_CENTS: 9000,
+    FLAT_CENTS: 0,
+    FREE_THRESHOLD_CENTS: 0,
   },
 
   // High-resolution print-file geometry. 3600 x 4200 px @ 300 DPI (12in x 14in).

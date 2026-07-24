@@ -30,8 +30,8 @@
   // ---- state ----------------------------------------------------------------
   const CART_KEY = 'qu_cart_v1';
   const AVATAR_EXPORT = 448; // px, square -> circular PNG
-  let CONFIG = { handleMax: 15, commentMax: 150, timeMax: 8, timeDefault: '2h', sizes: ['S', 'M', 'L', 'XL', '2XL', '3XL'], colors: ['Black', 'White'], shipping: { FLAT_CENTS: 600, FREE_THRESHOLD_CENTS: 9000 }, paymentsEnabled: false, currency: 'usd', country: 'US', brand: 'QuoteUnquote', stripePublishableKey: '' };
-  let PRODUCT = { id: 'custom-comment', price: 3799 };
+  let CONFIG = { handleMax: 15, commentMax: 150, timeMax: 8, timeDefault: '2h', sizes: ['S', 'M', 'L', 'XL', '2XL', '3XL'], colors: ['Black', 'White'], shipping: { FLAT_CENTS: 0, FREE_THRESHOLD_CENTS: 0 }, paymentsEnabled: false, currency: 'usd', country: 'US', brand: 'QuoteUnquote', stripePublishableKey: '' };
+  let PRODUCT = { id: 'custom-comment', price: 3499 };
   let cart = loadCart();
 
   // builder
