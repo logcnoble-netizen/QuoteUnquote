@@ -301,18 +301,26 @@
     $('cropRotate').addEventListener('click', () => cropper && cropper.rotate(90));
   }
 
+  // Accept any image, including iPhone HEIC/HEIF. Some browsers report an empty
+  // MIME for HEIC, so we also accept by file extension. The crop step re-encodes
+  // to PNG, so the server always receives a PNG regardless of the source format.
+  function isAcceptableImage(file) {
+    const name = (file.name || '').toLowerCase();
+    return /^image\//.test(file.type) ||
+      /\.(png|jpe?g|webp|heic|heif|gif|bmp|tiff?)$/.test(name);
+  }
+
   function onAvatarFile(e) {
     const file = e.target.files && e.target.files[0];
     e.target.value = ''; // allow re-selecting the same file later
     if (!file) return;
-    if (!/^image\/(png|jpeg|webp)$/.test(file.type)) { toast('Please choose a PNG, JPEG, or WebP image.', true); return; }
-    if (file.size > 10 * 1024 * 1024) { toast('That image is too large (max 10MB).', true); return; }
+    if (!isAcceptableImage(file)) { toast('Please choose an image (JPEG, PNG, HEIC, etc.).', true); return; }
+    if (file.size > 25 * 1024 * 1024) { toast('That image is too large (max 25MB).', true); return; }
     if (typeof Cropper === 'undefined') { toast('Cropper failed to load — please refresh.', true); return; }
 
     if (cropObjectUrl) URL.revokeObjectURL(cropObjectUrl);
     cropObjectUrl = URL.createObjectURL(file);
     const img = $('cropImage');
-    img.src = cropObjectUrl;
     $('cropModal').classList.add('open');
 
     if (cropper) { cropper.destroy(); cropper = null; }
@@ -332,6 +340,13 @@
         center: true,
       });
     };
+    // A HEIC that the browser can't decode (e.g. desktop Chrome) fails here —
+    // iOS/Safari decode HEIC natively, so this only affects rare desktop cases.
+    img.onerror = () => {
+      closeCrop();
+      toast('Couldn’t open that photo. On iPhone, pick it from your Photo Library, or upload a JPEG/PNG.', true);
+    };
+    img.src = cropObjectUrl;
   }
 
   function applyCrop() {
