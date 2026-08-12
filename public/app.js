@@ -560,7 +560,9 @@
     $('paymentSection').hidden = false;
 
     if (!cardEl) {
-      cardEl = elements.create('card', { style: { base: { fontSize: '16px', color: '#f4f4f5', fontFamily: 'Inter, sans-serif', '::placeholder': { color: '#6b6b73' } } } });
+      // Stripe renders in an iframe, so these must be passed explicitly —
+      // keep them in sync with --text / --text-faint in styles.css.
+      cardEl = elements.create('card', { style: { base: { fontSize: '16px', color: '#f4f4f5', fontFamily: 'Inter, sans-serif', '::placeholder': { color: '#8b8b95' } } } });
       cardEl.mount('#card-element');
     }
 

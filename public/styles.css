@@ -13,7 +13,10 @@
   --line-strong: rgba(255, 255, 255, 0.18);
   --text: #f4f4f5;
   --text-dim: #a1a1aa;
-  --text-faint: #6b6b73;
+  /* Tertiary text (placeholders, counters, hints). Kept >=4.5:1 on every
+     surface we paint it on — #6b6b73 measured only ~3.3-3.8:1 and read as
+     washed out on the dark ground. */
+  --text-faint: #8b8b95;
   --ig-grey: #8e8e93;
   --white: #fafafa;
 
@@ -228,7 +231,7 @@ a { color: inherit; }
 .counter { color: var(--text-faint); }
 .counter.warn { color: var(--text); font-weight: 700; }
 .input, .textarea {
-  width: 100%; border: 1px solid var(--line); background: #101013; color: var(--text);
+  width: 100%; border: 1px solid var(--line-strong); background: #101013; color: var(--text);
   font-family: var(--font-sans); font-size: 16px; padding: 13px 14px; resize: none; border-radius: var(--r-sm);
   transition: border-color .15s, box-shadow .15s;
 }
@@ -324,9 +327,9 @@ table.size-table td:first-child, table.size-table th:first-child { font-weight: 
 
 #payment-request-button { margin: 12px 0; }
 .pay-sep { text-align: center; font-family: var(--font-mono); font-size: 10.5px; color: var(--text-faint); text-transform: uppercase; letter-spacing: .12em; margin: 12px 0; }
-#card-element { border: 1px solid var(--line); border-radius: var(--r-sm); padding: 14px; background: #101013; }
+#card-element { border: 1px solid var(--line-strong); border-radius: var(--r-sm); padding: 14px; background: #101013; }
 .pay-fields { display: grid; gap: 8px; margin-bottom: 10px; }
-.pay-fields input { border: 1px solid var(--line); background: #101013; color: var(--text); padding: 11px 12px; font-size: 15px; font-family: var(--font-sans); border-radius: var(--r-sm); }
+.pay-fields input { border: 1px solid var(--line-strong); background: #101013; color: var(--text); padding: 11px 12px; font-size: 15px; font-family: var(--font-sans); border-radius: var(--r-sm); }
 .pay-fields input::placeholder { color: var(--text-faint); }
 .pay-fields input:focus { outline: none; border-color: rgba(255,255,255,.35); }
 .pay-fields .two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
