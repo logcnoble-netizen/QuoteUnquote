@@ -64,11 +64,14 @@ app.set('trust proxy', 1);
 // -----------------------------------------------------------------------------
 const cspDirectives = {
   defaultSrc: ["'self'"],
-  scriptSrc: ["'self'", 'https://js.stripe.com'],
+  // TikTok's SDK loader injects its own <script src="analytics.tiktok.com/...">
+  // at runtime, and the pixel reports events via fetch/beacon to the same host
+  // (with an image-beacon fallback) — hence it appears in all three below.
+  scriptSrc: ["'self'", 'https://js.stripe.com', 'https://analytics.tiktok.com'],
   styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
   fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
-  imgSrc: ["'self'", 'data:', 'blob:', 'https://images-api.printify.com'], // + Printify mockups on /admin
-  connectSrc: ["'self'", 'https://api.stripe.com'],
+  imgSrc: ["'self'", 'data:', 'blob:', 'https://images-api.printify.com', 'https://analytics.tiktok.com'], // + Printify mockups on /admin
+  connectSrc: ["'self'", 'https://api.stripe.com', 'https://analytics.tiktok.com'],
   frameSrc: ['https://js.stripe.com', 'https://hooks.stripe.com'],
   formAction: ["'self'"],
   objectSrc: ["'none'"],
@@ -129,6 +132,7 @@ app.get('/api/config', (req, res) => {
     shipping: cfg.SHIPPING,
     paymentsEnabled: !!stripe,
     stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY || '',
+    tiktokPixelId: process.env.TIKTOK_PIXEL_ID || '',
   });
 });
 
@@ -205,6 +209,10 @@ app.post('/api/checkout', async (req, res) => {
     return res.json({
       clientSecret: intent.client_secret,
       orderToken: order.token,
+      // Same id the webhook later passes to capi.sendPurchase as eventId —
+      // the browser pixel uses it too, so TikTok/Meta dedup the browser event
+      // against the server-side CAPI event instead of double-counting.
+      paymentIntentId: intent.id,
       amount,
       currency: cfg.CURRENCY,
       breakdown: { subtotal, shipping },

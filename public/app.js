@@ -30,7 +30,7 @@
   // ---- state ----------------------------------------------------------------
   const CART_KEY = 'qu_cart_v1';
   const AVATAR_EXPORT = 448; // px, square -> circular PNG
-  let CONFIG = { handleMax: 15, commentMax: 150, timeMax: 8, timeDefault: '2h', sizes: ['S', 'M', 'L', 'XL', '2XL', '3XL'], colors: ['Black', 'White'], shipping: { FLAT_CENTS: 0, FREE_THRESHOLD_CENTS: 0 }, paymentsEnabled: false, currency: 'usd', country: 'US', brand: 'QuoteUnquote', stripePublishableKey: '' };
+  let CONFIG = { handleMax: 15, commentMax: 150, timeMax: 8, timeDefault: '2h', sizes: ['S', 'M', 'L', 'XL', '2XL', '3XL'], colors: ['Black', 'White'], shipping: { FLAT_CENTS: 0, FREE_THRESHOLD_CENTS: 0 }, paymentsEnabled: false, currency: 'usd', country: 'US', brand: 'QuoteUnquote', stripePublishableKey: '', tiktokPixelId: '' };
   let PRODUCT = { id: 'custom-comment', price: 3499 };
   let cart = loadCart();
 
@@ -51,6 +51,10 @@
   let prButton = null;
   let clientSecret = null;
   let orderToken = null;
+  let paymentIntentId = null;   // shared dedup key with the server-side CAPI event
+  let lastCheckoutAmount = 0;   // cents; snapshot for the pixel Purchase event
+  let lastCheckoutCurrency = 'usd';
+  let lastCheckoutQty = 0;      // snapshot before onPaid() clears the cart
 
   document.addEventListener('DOMContentLoaded', init);
 
@@ -77,6 +81,7 @@
       const r = await fetch('/api/config');
       if (r.ok) CONFIG = Object.assign(CONFIG, await r.json());
     } catch (e) { /* keep defaults */ }
+    initTikTokPixel();
     const hi = $('handleInput'); if (hi) hi.maxLength = CONFIG.handleMax;
     const ci = $('commentInput'); if (ci) ci.maxLength = CONFIG.commentMax;
     const ti = $('timeInput'); if (ti) ti.maxLength = CONFIG.timeMax || 8;
@@ -93,6 +98,35 @@
         $('addCustomBtn').textContent = 'Add Custom Tee — ' + money(PRODUCT.price);
       }
     } catch (e) { /* keep default price */ }
+  }
+
+  // ===========================================================================
+  // TikTok Pixel (browser-side page-view + purchase tracking)
+  // ===========================================================================
+  // public/vendor/tiktok-pixel.js (loaded via a <script> tag in every
+  // customer-facing HTML page) only defines the window.ttq queueing stub — it
+  // never calls ttq.load() itself, so the pixel stays inert with no id
+  // configured. Turning tracking on/off is purely an env-var change
+  // (TIKTOK_PIXEL_ID on the server), never a code deploy.
+  function initTikTokPixel() {
+    if (!CONFIG.tiktokPixelId || typeof window.ttq === 'undefined') return;
+    window.ttq.load(CONFIG.tiktokPixelId);
+    window.ttq.page();
+  }
+
+  /** Fire once, right after a payment succeeds. Uses the SAME event_id as the
+   *  server's CAPI call (the Stripe PaymentIntent id) so TikTok dedupes the
+   *  browser pixel event against the server-side event instead of double
+   *  counting the purchase. No PII is sent from the browser — that's CAPI's job. */
+  function trackTikTokPurchase() {
+    if (typeof window.ttq === 'undefined' || !CONFIG.tiktokPixelId || !paymentIntentId) return;
+    try {
+      window.ttq.track('CompletePayment', {
+        value: (lastCheckoutAmount || 0) / 100,
+        currency: String(lastCheckoutCurrency || CONFIG.currency || 'usd').toUpperCase(),
+        contents: [{ content_type: 'product', content_id: PRODUCT.id, quantity: lastCheckoutQty || 1 }],
+      }, { event_id: paymentIntentId });
+    } catch (e) { /* never let analytics break checkout */ }
   }
 
   // ===========================================================================
@@ -515,7 +549,7 @@
   }
 
   function resetPayment() {
-    clientSecret = null; orderToken = null;
+    clientSecret = null; orderToken = null; paymentIntentId = null;
     $('paymentSection').hidden = true;
     $('checkoutBtn').hidden = false;
     if (prButton) { try { prButton.unmount(); } catch (e) {} prButton = null; }
@@ -544,6 +578,10 @@
       if (!r.ok) { toast((data.details && data.details[0]) || data.error || 'Checkout failed.', true); return; }
       clientSecret = data.clientSecret;
       orderToken = data.orderToken;
+      paymentIntentId = data.paymentIntentId;
+      lastCheckoutAmount = data.amount;
+      lastCheckoutCurrency = data.currency;
+      lastCheckoutQty = cartCount();
       $('cartSubtotal').textContent = money(data.breakdown.subtotal);
       $('cartShipping').textContent = data.breakdown.shipping === 0 ? 'FREE' : money(data.breakdown.shipping);
       $('cartTotal').textContent = money(data.amount);
@@ -643,6 +681,7 @@
 
   function onPaid() {
     const token = orderToken;
+    trackTikTokPurchase(); // must run before the cart (and its qty) is cleared below
     cart = []; saveCart(); renderCart();
     toast('Payment received — thank you!');
     closeCart();
