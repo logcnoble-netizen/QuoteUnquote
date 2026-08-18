@@ -67,11 +67,14 @@ const cspDirectives = {
   // TikTok's SDK loader injects its own <script src="analytics.tiktok.com/...">
   // at runtime, and the pixel reports events via fetch/beacon to the same host
   // (with an image-beacon fallback) — hence it appears in all three below.
+  // It also calls analytics-ipv6.tiktokw.us for IPv6 enrichment — only
+  // discoverable by testing against a real deployed domain, since this call
+  // never fires from localhost/sandboxed testing.
   scriptSrc: ["'self'", 'https://js.stripe.com', 'https://analytics.tiktok.com'],
   styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
   fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
   imgSrc: ["'self'", 'data:', 'blob:', 'https://images-api.printify.com', 'https://analytics.tiktok.com'], // + Printify mockups on /admin
-  connectSrc: ["'self'", 'https://api.stripe.com', 'https://analytics.tiktok.com'],
+  connectSrc: ["'self'", 'https://api.stripe.com', 'https://analytics.tiktok.com', 'https://analytics-ipv6.tiktokw.us'],
   frameSrc: ['https://js.stripe.com', 'https://hooks.stripe.com'],
   formAction: ["'self'"],
   objectSrc: ["'none'"],
