@@ -51,7 +51,7 @@
       <h1>Quote<br />Unquote</h1>
       <p>Turn your best comments into wearable art. High-quality custom tees, personalized with your handle and avatar on a 7.5 oz Shaka Wear t-shirt.</p>
       <div class="hero-cta">
-        <a class="btn" href="#builder">Customize Yours</a>
+        <a class="btn" href="#builder">Customize Yours — <span id="heroPrice">$34.99</span></a>
         <a class="btn btn-ghost" href="/track">Track Order</a>
       </div>
       <div class="tickers">
@@ -70,6 +70,7 @@
       <div class="section-head">
         <div>
           <h2>Build Your Own Comment Tee</h2>
+          <p class="section-price"><span id="builderPrice">$34.99</span> flat — free shipping, no surprises at checkout</p>
         </div>
       </div>
 
@@ -118,23 +119,11 @@
           </div>
         </div>
 
-        <!-- Form panel -->
+        <!-- Form panel. Photo upload (the highest-effort, most personal step) is
+             asked LAST — after handle/comment/color/size are filled and the
+             person has already invested in the mockup — not first. Price is
+             shown before any of this, in the hero CTA and the line above. -->
         <div class="panel">
-          <!-- Avatar upload + circular crop -->
-          <div class="field">
-            <div class="label">
-              <label>Profile Photo</label>
-            </div>
-            <div class="avatar-field">
-              <div class="avatar-preview" id="avatarPreview" aria-hidden="true"><span id="avatarPreviewLetter">+</span></div>
-              <div class="avatar-actions">
-                <input type="file" id="avatarInput" accept="image/*,.heic,.heif" class="visually-hidden" />
-                <button type="button" class="btn btn-ghost" id="avatarUploadBtn" style="padding:11px 16px">Upload &amp; Crop</button>
-                <button type="button" class="link-btn" id="avatarClearBtn" hidden style="margin-left:12px">Remove</button>
-              </div>
-            </div>
-          </div>
-
           <div class="field">
             <div class="label">
               <label for="handleInput">Handle</label>
@@ -182,6 +171,21 @@
             <div class="sizes" id="sizeSelector" role="group" aria-label="Select a size"></div>
           </div>
 
+          <!-- Avatar upload + circular crop — last step, once the shirt is basically built -->
+          <div class="field">
+            <div class="label">
+              <label>Profile Photo</label>
+            </div>
+            <div class="avatar-field">
+              <div class="avatar-preview" id="avatarPreview" aria-hidden="true"><span id="avatarPreviewLetter">+</span></div>
+              <div class="avatar-actions">
+                <input type="file" id="avatarInput" accept="image/*,.heic,.heif" class="visually-hidden" />
+                <button type="button" class="btn btn-ghost" id="avatarUploadBtn" style="padding:11px 16px">Upload &amp; Crop</button>
+                <button type="button" class="link-btn" id="avatarClearBtn" hidden style="margin-left:12px">Remove</button>
+              </div>
+            </div>
+          </div>
+
           <div class="disclosure" role="note">
             <span class="dot" aria-hidden="true"></span>
             <span>Every garment is custom printed on demand. Please allow 3–5 business days for production before shipment tracking updates.</span>
@@ -193,7 +197,7 @@
           </div>
 
           <button class="btn btn-block" id="addCustomBtn" disabled>Add Custom Tee — $34.99</button>
-          <p class="pay-note" id="builderHint">Add a photo, handle &amp; comment, pick a size, and accept the waiver to continue.</p>
+          <p class="pay-note" id="builderHint">Enter a handle &amp; comment, pick a size, add a photo, and accept the waiver to continue.</p>
         </div>
       </div>
     </div>

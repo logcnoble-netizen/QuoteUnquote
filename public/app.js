@@ -96,6 +96,10 @@
       if (data.product) {
         PRODUCT = data.product;
         $('addCustomBtn').textContent = 'Add Custom Tee — ' + money(PRODUCT.price);
+        // Keep every up-front price mention (hero CTA, builder section head) in
+        // sync with the server-sourced price — same value, three places.
+        const hp = $('heroPrice'); if (hp) hp.textContent = money(PRODUCT.price);
+        const bp = $('builderPrice'); if (bp) bp.textContent = money(PRODUCT.price);
       }
     } catch (e) { /* keep default price */ }
   }
@@ -265,10 +269,12 @@
     const v = builderValues();
     const ok = !!(avatarDataUrl && v.handle && v.comment && selectedSize && v.waiver);
     $('addCustomBtn').disabled = !ok;
+    // Priority order mirrors the on-screen field order (handle/comment, size,
+    // photo, waiver) so the hint always points at the next visible blocker.
     const hint = $('builderHint');
-    if (!avatarDataUrl) hint.textContent = 'Upload & crop a profile photo to continue.';
-    else if (!v.handle || !v.comment) hint.textContent = 'Enter a handle & comment to continue.';
+    if (!v.handle || !v.comment) hint.textContent = 'Enter a handle & comment to continue.';
     else if (!selectedSize) hint.textContent = 'Pick a size to continue.';
+    else if (!avatarDataUrl) hint.textContent = 'Upload & crop a profile photo to continue.';
     else if (!v.waiver) hint.textContent = 'Please accept the custom-text waiver to continue.';
     else hint.textContent = 'Looks good — add it to your cart.';
     return ok;

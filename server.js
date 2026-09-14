@@ -74,7 +74,11 @@ const cspDirectives = {
   styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
   fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
   imgSrc: ["'self'", 'data:', 'blob:', 'https://images-api.printify.com', 'https://analytics.tiktok.com'], // + Printify mockups on /admin
-  connectSrc: ["'self'", 'https://api.stripe.com', 'https://analytics.tiktok.com', 'https://analytics-ipv6.tiktokw.us'],
+  // blob: — the TikTok pixel appears to instrument fetch() and probe local
+  // blob: object URLs (e.g. the one the avatar cropper creates) as part of
+  // its own auto-event detection; harmless to allow since these are
+  // same-origin ephemeral objects the page itself created, not a third party.
+  connectSrc: ["'self'", 'blob:', 'https://api.stripe.com', 'https://analytics.tiktok.com', 'https://analytics-ipv6.tiktokw.us'],
   frameSrc: ['https://js.stripe.com', 'https://hooks.stripe.com'],
   formAction: ["'self'"],
   objectSrc: ["'none'"],
