@@ -70,15 +70,18 @@ const cspDirectives = {
   // It also calls analytics-ipv6.tiktokw.us for IPv6 enrichment — only
   // discoverable by testing against a real deployed domain, since this call
   // never fires from localhost/sandboxed testing.
-  scriptSrc: ["'self'", 'https://js.stripe.com', 'https://analytics.tiktok.com'],
+  // Meta's SDK loader injects <script src="connect.facebook.net/...">, then
+  // reports events to www.facebook.com/tr (fetch, with an <img> pixel
+  // fallback) — hence it appears in script-src, connect-src, and img-src.
+  scriptSrc: ["'self'", 'https://js.stripe.com', 'https://analytics.tiktok.com', 'https://connect.facebook.net'],
   styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
   fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
-  imgSrc: ["'self'", 'data:', 'blob:', 'https://images-api.printify.com', 'https://analytics.tiktok.com'], // + Printify mockups on /admin
+  imgSrc: ["'self'", 'data:', 'blob:', 'https://images-api.printify.com', 'https://analytics.tiktok.com', 'https://www.facebook.com'], // + Printify mockups on /admin
   // blob: — the TikTok pixel appears to instrument fetch() and probe local
   // blob: object URLs (e.g. the one the avatar cropper creates) as part of
   // its own auto-event detection; harmless to allow since these are
   // same-origin ephemeral objects the page itself created, not a third party.
-  connectSrc: ["'self'", 'blob:', 'https://api.stripe.com', 'https://analytics.tiktok.com', 'https://analytics-ipv6.tiktokw.us'],
+  connectSrc: ["'self'", 'blob:', 'https://api.stripe.com', 'https://analytics.tiktok.com', 'https://analytics-ipv6.tiktokw.us', 'https://connect.facebook.net', 'https://www.facebook.com'],
   frameSrc: ['https://js.stripe.com', 'https://hooks.stripe.com'],
   formAction: ["'self'"],
   objectSrc: ["'none'"],
@@ -140,6 +143,7 @@ app.get('/api/config', (req, res) => {
     paymentsEnabled: !!stripe,
     stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY || '',
     tiktokPixelId: process.env.TIKTOK_PIXEL_ID || '',
+    metaPixelId: process.env.META_PIXEL_ID || '',
   });
 });
 

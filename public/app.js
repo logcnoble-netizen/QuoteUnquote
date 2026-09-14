@@ -30,7 +30,7 @@
   // ---- state ----------------------------------------------------------------
   const CART_KEY = 'qu_cart_v1';
   const AVATAR_EXPORT = 448; // px, square -> circular PNG
-  let CONFIG = { handleMax: 15, commentMax: 150, timeMax: 8, timeDefault: '2h', sizes: ['S', 'M', 'L', 'XL', '2XL', '3XL'], colors: ['Black', 'White'], shipping: { FLAT_CENTS: 0, FREE_THRESHOLD_CENTS: 0 }, paymentsEnabled: false, currency: 'usd', country: 'US', brand: 'QuoteUnquote', stripePublishableKey: '', tiktokPixelId: '' };
+  let CONFIG = { handleMax: 15, commentMax: 150, timeMax: 8, timeDefault: '2h', sizes: ['S', 'M', 'L', 'XL', '2XL', '3XL'], colors: ['Black', 'White'], shipping: { FLAT_CENTS: 0, FREE_THRESHOLD_CENTS: 0 }, paymentsEnabled: false, currency: 'usd', country: 'US', brand: 'QuoteUnquote', stripePublishableKey: '', tiktokPixelId: '', metaPixelId: '' };
   let PRODUCT = { id: 'custom-comment', price: 3499 };
   let cart = loadCart();
 
@@ -82,6 +82,7 @@
       if (r.ok) CONFIG = Object.assign(CONFIG, await r.json());
     } catch (e) { /* keep defaults */ }
     initTikTokPixel();
+    initMetaPixel();
     const hi = $('handleInput'); if (hi) hi.maxLength = CONFIG.handleMax;
     const ci = $('commentInput'); if (ci) ci.maxLength = CONFIG.commentMax;
     const ti = $('timeInput'); if (ti) ti.maxLength = CONFIG.timeMax || 8;
@@ -130,6 +131,36 @@
         currency: String(lastCheckoutCurrency || CONFIG.currency || 'usd').toUpperCase(),
         contents: [{ content_type: 'product', content_id: PRODUCT.id, quantity: lastCheckoutQty || 1 }],
       }, { event_id: paymentIntentId });
+    } catch (e) { /* never let analytics break checkout */ }
+  }
+
+  // ===========================================================================
+  // Meta Pixel (browser-side page-view + purchase tracking)
+  // ===========================================================================
+  // Same split as the TikTok pixel above: public/vendor/meta-pixel.js only
+  // defines the window.fbq queueing stub — it never calls fbq('init', ...)
+  // itself, so it stays inert with no id configured. Turning tracking on/off
+  // is purely an env-var change (META_PIXEL_ID on the server).
+  function initMetaPixel() {
+    if (!CONFIG.metaPixelId || typeof window.fbq === 'undefined') return;
+    window.fbq('init', CONFIG.metaPixelId);
+    window.fbq('track', 'PageView');
+  }
+
+  /** Mirrors trackTikTokPurchase(): fires once after payment succeeds, using
+   *  the SAME PaymentIntent id as the server's CAPI call so Meta dedupes the
+   *  browser event against the server-side event via the eventID param
+   *  (Meta's own name for this — camelCase, not event_id like TikTok/its
+   *  own server-side payload). No PII from the browser — CAPI's job. */
+  function trackMetaPurchase() {
+    if (typeof window.fbq === 'undefined' || !CONFIG.metaPixelId || !paymentIntentId) return;
+    try {
+      window.fbq('track', 'Purchase', {
+        value: (lastCheckoutAmount || 0) / 100,
+        currency: String(lastCheckoutCurrency || CONFIG.currency || 'usd').toUpperCase(),
+        contents: [{ id: PRODUCT.id, quantity: lastCheckoutQty || 1 }],
+        content_type: 'product',
+      }, { eventID: paymentIntentId });
     } catch (e) { /* never let analytics break checkout */ }
   }
 
@@ -688,6 +719,7 @@
   function onPaid() {
     const token = orderToken;
     trackTikTokPurchase(); // must run before the cart (and its qty) is cleared below
+    trackMetaPurchase();
     cart = []; saveCart(); renderCart();
     toast('Payment received — thank you!');
     closeCart();
